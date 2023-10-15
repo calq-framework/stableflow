@@ -8,4 +8,8 @@
     <PackageId>CalqFramework.StableFlow</PackageId>
     <Version>0.0.0</Version>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Ghbvft6.Calq.Terminal" Version="0.0.0" />
+    <PackageReference Include="Ghbvft6.Calq.Tooler" Version="0.1.7" />
+  </ItemGroup>
 </Project>
