@@ -8,7 +8,7 @@ namespace Ghbvft6.Calq.Dvo;
 
 class Program {
 
-    public void Merge(bool release) {
+    public void merge(bool release) {
         var TMPDIR = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         Directory.CreateDirectory(TMPDIR);
 
