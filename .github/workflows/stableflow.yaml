@@ -1,0 +1,81 @@
+name: stableflow
+
+on:
+  workflow_call:
+    inputs:
+      command:
+        required: true
+        type: string
+    secrets:
+      MAIN_NUGET_PAT:
+        required: true
+      CALQ_FRAMEWORK_NUGET_PAT:
+        required: true
+
+concurrency: stableflow
+
+permissions:
+  contents: write
+
+jobs:
+  stableflow:
+    runs-on: ubuntu-latest
+    steps:
+    - name: setup nuget config
+      continue-on-error: true
+      run: |
+        dotnet nuget add source --username ${{ github.triggering_actor }} --password ${{ secrets.MAIN_NUGET_PAT }} --store-password-in-clear-text --name main "https://nuget.pkg.github.com/${{github.repository_owner}}/index.json"
+        dotnet nuget add source --username ${{ github.triggering_actor }} --password ${{ secrets.CALQ_FRAMEWORK_NUGET_PAT }} --store-password-in-clear-text --name calq-framework "https://nuget.pkg.github.com/calq-framework/index.json"
+    - name: download synver metadata
+      run: |
+        PACKAGE_ID="Ghbvft6.Synver"
+        PACKAGE_OWNER="calq-framework"
+        TOOL_METADATA_DIR=".dotnet/tools/.metadata/$PACKAGE_ID"
+        mkdir -p $TOOL_METADATA_DIR
+        curl --fail --output "$TOOL_METADATA_DIR/index.json" "https://${{ github.triggering_actor }}:${{ secrets.CALQ_FRAMEWORK_NUGET_PAT }}@nuget.pkg.github.com/$PACKAGE_OWNER/$PACKAGE_ID/index.json"
+    - name: download stableflow metadata
+      run: |
+        PACKAGE_ID="CalqFramework.StableFlow"
+        PACKAGE_OWNER="calq-framework"
+        TOOL_METADATA_DIR=".dotnet/tools/.metadata/$PACKAGE_ID"
+        mkdir -p $TOOL_METADATA_DIR
+        curl --fail --output "$TOOL_METADATA_DIR/index.json" "https://${{ github.triggering_actor }}:${{ secrets.CALQ_FRAMEWORK_NUGET_PAT }}@nuget.pkg.github.com/$PACKAGE_OWNER/$PACKAGE_ID/index.json"
+    - uses: actions/cache@v3
+      with:
+        path: ~/.dotnet/tools
+        key: ${{ runner.os }}-dotnet-tools-${{ hashFiles('.dotnet/tools/.metadata/*/index.json') }}
+        restore-keys: |
+          ${{ runner.os }}-dotnet-tools-
+    - name: install synver
+      shell: bash
+      run: dotnet tool update --global Ghbvft6.Synver # --version 0.4.*
+    - name: install stableflow
+      shell: bash
+      run: dotnet tool update --global CalqFramework.StableFLow # TODO --version ${{ github.workflow_ref }}
+    - name: clean workdir
+      run: rm -rf *
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 2
+    - name: fetch minor branches
+      run: git fetch --depth=1 origin '+refs/heads/v*:refs/remotes/origin/v*' || true
+    - name: switch to latest
+      run: |
+      echo "BASE_BRANCH=$(git branch --show-current)" >> "$GITHUB_ENV"
+        LATEST_BRANCH_FULL_NAME=$(git branch --remotes --list origin/v[0-9]*.[0-9]* --sort -version:refname | head -n 1 | xargs)
+        LATEST_BRANCH_NAME=${LATEST_BRANCH_FULL_NAME#"origin/"}
+        if [ "$LATEST_BRANCH_NAME" != "" ]; then
+          git switch --orphan latest
+          git pull --depth=1 origin $LATEST_BRANCH_NAME
+        fi
+    - uses: actions/cache@v3
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+    - name: switch to base branch
+      run: git switch $BASE_BRANCH
+    - name: stableflow
+      shell: bash
+      run: stableflow ${{ inputs.command }}
