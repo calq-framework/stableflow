@@ -61,7 +61,7 @@ jobs:
       run: git fetch --depth=1 origin '+refs/heads/v*:refs/remotes/origin/v*' || true
     - name: switch to latest
       run: |
-      echo "BASE_BRANCH=$(git branch --show-current)" >> "$GITHUB_ENV"
+        echo "BASE_BRANCH=$(git branch --show-current)" >> "$GITHUB_ENV"
         LATEST_BRANCH_FULL_NAME=$(git branch --remotes --list origin/v[0-9]*.[0-9]* --sort -version:refname | head -n 1 | xargs)
         LATEST_BRANCH_NAME=${LATEST_BRANCH_FULL_NAME#"origin/"}
         if [ "$LATEST_BRANCH_NAME" != "" ]; then
