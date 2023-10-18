@@ -49,21 +49,13 @@ jobs:
     - name: install synver
       shell: bash
       run: |
-        if [[ "${{ github.repository }}" == "calq-framework/synver" ]]; then
-          dotnet tool uninstall --global Ghbvft6.Synver || true
-          dotnet pack -c Release
-          dotnet tool install --global --add-source . Ghbvft6.Synver
-        else
+        if [[ "${{ github.repository }}" != "calq-framework/synver" ]]; then
           dotnet tool update --global CalqFramework.StableFlow # TODO --version ${{ github.workflow_ref }}
         fi
     - name: install stableflow
       shell: bash
       run: |
-        if [[ "${{ github.repository }}" == "calq-framework/stable-flow" ]]; then
-          dotnet tool uninstall --global CalqFramework.StableFlow || true
-          dotnet pack -c Release
-          dotnet tool install --global --add-source . CalqFramework.StableFlow
-        else
+        if [[ "${{ github.repository }}" != "calq-framework/stable-flow" ]]; then
           dotnet tool update --global CalqFramework.StableFlow # TODO --version ${{ github.workflow_ref }}
         fi
     - name: clean workdir
@@ -90,6 +82,22 @@ jobs:
           ${{ runner.os }}-nuget-
     - name: switch to base branch
       run: git switch $BASE_BRANCH
+    - name: self-install synver
+      shell: bash
+      run: |
+        if [[ "${{ github.repository }}" == "calq-framework/synver" ]]; then
+          dotnet tool uninstall --global Ghbvft6.Synver || true
+          dotnet pack -c Release
+          dotnet tool install --global --add-source . Ghbvft6.Synver
+        fi
+    - name: self-install stableflow
+      shell: bash
+      run: |
+        if [[ "${{ github.repository }}" == "calq-framework/stable-flow" ]]; then
+          dotnet tool uninstall --global CalqFramework.StableFlow || true
+          dotnet pack -c Release
+          dotnet tool install --global --add-source . CalqFramework.StableFlow
+        fi
     - name: stableflow
       shell: bash
       run: stableflow ${{ inputs.command }}
