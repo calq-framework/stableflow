@@ -171,7 +171,7 @@ class Program {
 
     private void MergeBranch(string mainBranchName) {
         try {
-            CMD($"git -c user.name='stableflow[action]' -c user.email='' merge -X theirs --no-ff {mainBranchName}");
+            CMD($"git -c user.name='stableflow[action]' -c user.email='' merge -X theirs --no-ff --allow-unrelated-histories {mainBranchName}");
         } catch (CommandExecutionException e) {
             CMD("git -c user.name='stableflow[action]' -c user.email='' merge --abort || true");
             throw new MergeException("", e);
