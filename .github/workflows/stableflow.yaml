@@ -87,7 +87,7 @@ jobs:
       run: |
         if [[ "${{ github.repository }}" == "calq-framework/synver" ]]; then
           dotnet tool uninstall --global Ghbvft6.Synver || true
-          dotnet pack -c Release
+          dotnet pack -c Release --output .
           dotnet tool install --global --add-source . Ghbvft6.Synver
         fi
     - name: self-install stableflow
@@ -95,7 +95,7 @@ jobs:
       run: |
         if [[ "${{ github.repository }}" == "calq-framework/stable-flow" ]]; then
           dotnet tool uninstall --global CalqFramework.StableFlow || true
-          dotnet pack -c Release
+          dotnet pack -c Release --output .
           dotnet tool install --global --add-source . CalqFramework.StableFlow
           cat ./CalqFramework.StableFlow/Program.cs
         fi
