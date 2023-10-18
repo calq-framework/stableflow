@@ -97,7 +97,6 @@ jobs:
           dotnet tool uninstall --global CalqFramework.StableFlow || true
           dotnet pack -c Release --output .
           dotnet tool install --global --add-source . CalqFramework.StableFlow
-          cat ./CalqFramework.StableFlow/Program.cs
         fi
     - name: stableflow
       shell: bash

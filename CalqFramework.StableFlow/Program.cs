@@ -100,7 +100,7 @@ class Program {
     }
 
     private string GetProjectFile() {
-        var currentProjectFiles = Directory.GetFiles(".", "*.*proj").Where(file => !file.EndsWith("Test")).ToArray();
+        var currentProjectFiles = Directory.GetFiles(".", "*.*proj", SearchOption.AllDirectories).Where(file => !Path.GetFileNameWithoutExtension(file).EndsWith("Test")).ToArray();
         return currentProjectFiles.FirstOrDefault()!;
     }
 
@@ -136,7 +136,7 @@ class Program {
 
 
     private void ReleaseCore(bool doBuild) {
-        var projectFiles = Directory.GetFiles(".", "*.csproj").Where(file => !file.EndsWith("Test"));
+        var projectFiles = Directory.GetFiles(".", "*.*proj", SearchOption.AllDirectories).Where(file => !Path.GetFileNameWithoutExtension(file).EndsWith("Test"));
 
         foreach (var projectFile in projectFiles) {
             var projectContent = File.ReadAllText(projectFile);
