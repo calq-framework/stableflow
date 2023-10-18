@@ -48,10 +48,24 @@ jobs:
           ${{ runner.os }}-dotnet-tools-
     - name: install synver
       shell: bash
-      run: dotnet tool update --global Ghbvft6.Synver # --version 0.4.*
+      run: |
+        if [[ "${{ github.repository }}" == "calq-framework/synver" ]]; then
+          dotnet tool uninstall --global Ghbvft6.Synver || true
+          dotnet pack -c Release
+          dotnet tool install --global --add-source . Ghbvft6.Synver
+        else
+          dotnet tool update --global CalqFramework.StableFlow # TODO --version ${{ github.workflow_ref }}
+        fi
     - name: install stableflow
       shell: bash
-      run: dotnet tool update --global CalqFramework.StableFLow # TODO --version ${{ github.workflow_ref }}
+      run: |
+        if [[ "${{ github.repository }}" == "calq-framework/stable-flow" ]]; then
+          dotnet tool uninstall --global CalqFramework.StableFlow || true
+          dotnet pack -c Release
+          dotnet tool install --global --add-source . CalqFramework.StableFlow
+        else
+          dotnet tool update --global CalqFramework.StableFlow # TODO --version ${{ github.workflow_ref }}
+        fi
     - name: clean workdir
       run: rm -rf *
     - uses: actions/checkout@v3
