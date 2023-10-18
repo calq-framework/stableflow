@@ -15,7 +15,7 @@ jobs:
   merge-release:
     uses: calq-framework/stable-flow/.github/workflows/stableflow.yaml@main
     with:
-      command: Merge -r
+      command: merge -r
     secrets:
       MAIN_NUGET_PAT: ${{ secrets.MAIN_NUGET_PAT }}
       CALQ_FRAMEWORK_NUGET_PAT: ${{ secrets.CALQ_FRAMEWORK_NUGET_PAT }}
