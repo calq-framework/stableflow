@@ -52,16 +52,14 @@ class Program {
         var modifiedVersion = GetVersion(projectFile);
         assemblyName = GetAssembly(projectFile);
 
-        CMD($"dotnet publish \"{projectFile}\" --output \"{TMPDIR}/publish_modified\" --no-restore --no-build --configuration Release -p:ContinuousIntegrationBuild=true");
-        var modifiedDll = $"{TMPDIR}/publish_modified/{assemblyName}.dll";
-
-        if (modifiedVersion != baseVersion) {
+        if (new Version(modifiedVersion.Major, modifiedVersion.Minor) != new Version(baseVersion.Major, baseVersion.Minor)
+            || new Version(modifiedVersion.Major, modifiedVersion.Minor) != new Version(GetVersionFromBranchName(latestBranchName).Major, GetVersionFromBranchName(latestBranchName).Minor)) {
             var minorBranchName = $"v{modifiedVersion.Major}.{modifiedVersion.Minor}";
             try {
                 CMD($"git switch --create {minorBranchName}");
-            } catch (CommandExecutionException ex) {
+            } catch (CommandExecutionException) {
                 if (minorBranchName != latestBranchName) {
-                    throw ex;
+                    throw;
                 }
             }
             UpdateVersion(projectFile, modifiedVersion);
@@ -69,6 +67,9 @@ class Program {
 
             return;
         }
+
+        CMD($"dotnet publish \"{projectFile}\" --output \"{TMPDIR}/publish_modified\" --no-restore --no-build --configuration Release -p:ContinuousIntegrationBuild=true");
+        var modifiedDll = $"{TMPDIR}/publish_modified/{assemblyName}.dll";
 
         var versioningToolOutput = CMD($"synver \"{baseDll}\" \"{modifiedDll}\" 0.0.0");
 
