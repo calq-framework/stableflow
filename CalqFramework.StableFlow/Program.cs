@@ -39,7 +39,7 @@ class Program {
 
         var projectFile = GetProjectFile();
         var baseVersion = GetVersion(projectFile);
-        var assemblyName = GetAssembly(projectFile);
+        var assemblyName = GetAssemblyName(projectFile);
 
         // TODO cache latest build so that this building step can be omitted
         CMD($"dotnet publish \"{projectFile}\" --output \"{TMPDIR}/publish_base\" --configuration Release -p:ContinuousIntegrationBuild=true");
@@ -50,7 +50,7 @@ class Program {
 
         projectFile = GetProjectFile();
         var modifiedVersion = GetVersion(projectFile);
-        assemblyName = GetAssembly(projectFile);
+        assemblyName = GetAssemblyName(projectFile);
 
         if (new Version(modifiedVersion.Major, modifiedVersion.Minor) != new Version(baseVersion.Major, baseVersion.Minor)
             || new Version(modifiedVersion.Major, modifiedVersion.Minor) != new Version(GetVersionFromBranchName(latestBranchName).Major, GetVersionFromBranchName(latestBranchName).Minor)) {
@@ -63,7 +63,7 @@ class Program {
                 }
             }
             UpdateVersion(projectFile, modifiedVersion);
-            Push(latestBranchName, release);
+            Push(minorBranchName, release);
 
             return;
         }
@@ -122,7 +122,7 @@ class Program {
         throw new Exception($"Version is not defined in project: {projectFile}");
     }
 
-    private string GetAssembly(string projectFile) {
+    private string GetAssemblyName(string projectFile) {
         var content = File.ReadAllText(projectFile);
         var assemblyNamePattern = "<AssemblyName>(.*?)</AssemblyName>";
         var match = Regex.Match(content, assemblyNamePattern);
@@ -150,9 +150,8 @@ class Program {
                 ? "-p:EmbedUntrackedSources=true -p:DebugType=embedded -p:PublishRepositoryUrl=true"
                 : "";
 
-            var nupkg = CMD($"dotnet pack \"{projectFile}\" {buildOptions} --configuration Release -p:ContinuousIntegrationBuild=true {packOptions}")
-                .Split('\n')
-                .FirstOrDefault(line => line.EndsWith(".nupkg"));
+            CMD($"dotnet pack \"{projectFile}\" {buildOptions} --output . --configuration Release -p:ContinuousIntegrationBuild=true {packOptions}");
+            var nupkg = $"./{GetAssemblyName(projectFile)}.{version}.nupkg";
 
             CMD($"dotnet nuget push {nupkg} --source main");
 
