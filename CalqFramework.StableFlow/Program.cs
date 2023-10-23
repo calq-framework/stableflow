@@ -15,10 +15,6 @@ class Program {
         var mainBranchName = CMD("git branch --show-current").Trim();
         var commitsCount = int.Parse(CMD($"git rev-list --count {mainBranchName}").Trim());
 
-        if (commitsCount == 1) {
-            return;
-        }
-
         var branches = CMD("git branch --remotes --list origin/v[0-9]*.[0-9]* --sort -version:refname").Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
         var latestBranchFullName = branches.FirstOrDefault();

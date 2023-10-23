@@ -61,8 +61,6 @@ jobs:
     - name: clean workdir
       run: rm -rf *
     - uses: actions/checkout@v3
-      with:
-        fetch-depth: 2
     - name: fetch minor branches
       run: git fetch --depth=1 origin '+refs/heads/v*:refs/remotes/origin/v*' || true
     - name: switch to latest
