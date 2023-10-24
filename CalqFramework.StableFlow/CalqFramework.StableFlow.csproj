@@ -4,11 +4,11 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>CalqFramework.StableFlow</RootNamespace>
-    <PackageId>CalqFramework.StableFlow</PackageId>
+    <RootNamespace>CalqFramework.Stableflow</RootNamespace>
+    <PackageId>CalqFramework.Stableflow</PackageId>
     <Version>0.2.0</Version>
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>stableflow</ToolCommandName>
+    <ToolCommandName>Stableflow</ToolCommandName>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Ghbvft6.Calq.Terminal" Version="0.*" />

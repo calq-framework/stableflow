@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalqFramework.StableFlow", "CalqFramework.StableFlow\CalqFramework.StableFlow.csproj", "{8D959044-9FF9-432D-8F0F-C7E506A891E9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalqFramework.Stableflow", "CalqFramework.Stableflow\CalqFramework.Stableflow.csproj", "{8D959044-9FF9-432D-8F0F-C7E506A891E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalqFramework.StableFlowTest", "CalqFramework.StableFlowTest\CalqFramework.StableFlowTest.csproj", "{A96D639F-CEF1-4CE7-806A-B0CDAD954B07}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalqFramework.StableflowTest", "CalqFramework.StableflowTest\CalqFramework.StableflowTest.csproj", "{A96D639F-CEF1-4CE7-806A-B0CDAD954B07}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

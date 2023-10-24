@@ -167,9 +167,9 @@ class Program {
 
     private void MergeBranch(string mainBranchName) {
         try {
-            CMD($"git -c user.name='stableflow[action]' -c user.email='' merge -X theirs --no-ff --allow-unrelated-histories {mainBranchName}");
+            CMD($"git -c user.name='Stableflow[action]' -c user.email='' merge -X theirs --no-ff --allow-unrelated-histories {mainBranchName}");
         } catch (CommandExecutionException e) {
-            CMD("git -c user.name='stableflow[action]' -c user.email='' merge --abort || true");
+            CMD("git -c user.name='Stableflow[action]' -c user.email='' merge --abort || true");
             throw new MergeException("", e);
         }
 
@@ -212,7 +212,7 @@ class Program {
     private void Push(string branchName, bool doRelease) {
         CMD("git add '*/packages.lock.json'");
         CMD("git add .github || true");
-        CMD("git -c user.name='stableflow[action]' -c user.email='' commit --amend --no-edit");
+        CMD("git -c user.name='Stableflow[action]' -c user.email='' commit --amend --no-edit");
         CMD($"git push origin {branchName}");
 
         if (doRelease) {

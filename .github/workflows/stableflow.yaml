@@ -35,7 +35,7 @@ jobs:
         curl --fail --output "$TOOL_METADATA_DIR/index.json" "https://${{ github.triggering_actor }}:${{ secrets.CALQ_FRAMEWORK_NUGET_PAT }}@nuget.pkg.github.com/$PACKAGE_OWNER/$PACKAGE_ID/index.json"
     - name: download stableflow metadata
       run: |
-        PACKAGE_ID="CalqFramework.StableFlow"
+        PACKAGE_ID="CalqFramework.Stableflow"
         PACKAGE_OWNER="calq-framework"
         TOOL_METADATA_DIR=".dotnet/tools/.metadata/$PACKAGE_ID"
         mkdir -p $TOOL_METADATA_DIR
@@ -50,13 +50,13 @@ jobs:
       shell: bash
       run: |
         if [[ "${{ github.repository }}" != "calq-framework/synver" ]]; then
-          dotnet tool update --global CalqFramework.StableFlow # TODO --version ${{ github.workflow_ref }}
+          dotnet tool update --global CalqFramework.Stableflow # TODO --version ${{ github.workflow_ref }}
         fi
     - name: install stableflow
       shell: bash
       run: |
         if [[ "${{ github.repository }}" != "calq-framework/stable-flow" ]]; then
-          dotnet tool update --global CalqFramework.StableFlow # TODO --version ${{ github.workflow_ref }}
+          dotnet tool update --global CalqFramework.Stableflow # TODO --version ${{ github.workflow_ref }}
         fi
     - name: clean workdir
       run: rm -rf *
@@ -94,11 +94,11 @@ jobs:
       shell: bash
       run: |
         if [[ "${{ github.repository }}" == "calq-framework/stable-flow" ]]; then
-          dotnet tool uninstall --global CalqFramework.StableFlow || true
+          dotnet tool uninstall --global CalqFramework.Stableflow || true
           dotnet pack -c Release --output .
           nupkg=$(find . -maxdepth 1 -type f -name "*.nupkg")
           version=$(echo "$nupkg" | sed -n 's/.*\([0-9]\+\.[0-9]\+\.[0-9]\+\)\.nupkg/\1/p')
-          dotnet tool install --global --add-source . --version "$version" CalqFramework.StableFlow # doesn't use local source unless version is specified
+          dotnet tool install --global --add-source . --version "$version" CalqFramework.Stableflow # doesn't use local source unless version is specified
         fi
     - name: stableflow
       shell: bash

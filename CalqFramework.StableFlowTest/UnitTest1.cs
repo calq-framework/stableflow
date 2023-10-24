@@ -1,4 +1,4 @@
-namespace CalqFramework.StableFlowTest;
+namespace CalqFramework.StableflowTest;
 
 public class UnitTest1
 {

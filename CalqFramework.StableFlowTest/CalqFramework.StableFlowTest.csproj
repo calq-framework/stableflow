@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CalqFramework.StableFlow\CalqFramework.StableFlow.csproj" />
+    <ProjectReference Include="..\CalqFramework.Stableflow\CalqFramework.Stableflow.csproj" />
   </ItemGroup>
 
 </Project>
