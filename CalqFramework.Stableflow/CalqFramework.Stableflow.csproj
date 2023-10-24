@@ -8,7 +8,7 @@
     <PackageId>CalqFramework.Stableflow</PackageId>
     <Version>0.2.0</Version>
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>Stableflow</ToolCommandName>
+    <ToolCommandName>stableflow</ToolCommandName>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Ghbvft6.Calq.Terminal" Version="0.*" />

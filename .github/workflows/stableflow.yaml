@@ -55,7 +55,7 @@ jobs:
     - name: install stableflow
       shell: bash
       run: |
-        if [[ "${{ github.repository }}" != "calq-framework/stable-flow" ]]; then
+        if [[ "${{ github.repository }}" != "calq-framework/stableflow" ]]; then
           dotnet tool update --global CalqFramework.Stableflow # TODO --version ${{ github.workflow_ref }}
         fi
     - name: clean workdir
@@ -93,7 +93,7 @@ jobs:
     - name: self-install stableflow
       shell: bash
       run: |
-        if [[ "${{ github.repository }}" == "calq-framework/stable-flow" ]]; then
+        if [[ "${{ github.repository }}" == "calq-framework/stableflow" ]]; then
           dotnet tool uninstall --global CalqFramework.Stableflow || true
           dotnet pack -c Release --output .
           nupkg=$(find . -maxdepth 1 -type f -name "*.nupkg")
