@@ -111,13 +111,17 @@ class Program {
         }
 
         // TODO cache latest build so that this building step can be omitted
-        CMD($"dotnet publish \"{baseProjectFile}\" --output \"{TMPDIR}/publish_base\" --locked-mode --configuration Release -p:ContinuousIntegrationBuild=true");
+        CMD($"dotnet restore \"{baseProjectFile}\" --locked-mode -p:ContinuousIntegrationBuild=true");
+        CMD($"dotnet build \"{baseProjectFile}\" --no-restore --configuration Release -p:ContinuousIntegrationBuild=true");
+        CMD($"dotnet publish \"{baseProjectFile}\" --output \"{TMPDIR}/publish_base\" --no-restore --no-build --configuration Release -p:ContinuousIntegrationBuild=true");
         var baseDll = $"{TMPDIR}/publish_base/{baseAssemblyName}.dll";
 
         Clean();
         CMD($"git switch -");
-        
-        CMD($"dotnet publish \"{modifiedProjectFile}\" --output \"{TMPDIR}/publish_modified\" --locked-mode --configuration Release -p:ContinuousIntegrationBuild=true");
+
+        CMD($"dotnet restore \"{modifiedProjectFile}\" --locked-mode -p:ContinuousIntegrationBuild=true");
+        CMD($"dotnet build \"{modifiedProjectFile}\" --no-restore --configuration Release -p:ContinuousIntegrationBuild=true");
+        CMD($"dotnet publish \"{modifiedProjectFile}\" --output \"{TMPDIR}/publish_modified\" --no-restore --no-build --configuration Release -p:ContinuousIntegrationBuild=true");
         var modifiedDll = $"{TMPDIR}/publish_modified/{modifiedAssemblyName}.dll";
 
         var versioningToolOutput = CMD($"synver \"{baseDll}\" \"{modifiedDll}\" 0.0.0");
