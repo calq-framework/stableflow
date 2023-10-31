@@ -94,7 +94,7 @@ class Program {
             return;
         }
 
-        var latestTagHash = latestTagDescription.Split(' ')[0]; // TODO re-validate with regex
+        var latestTagHash = Regex.Split(latestTagDescription, @"\s+")[0]; // TODO re-validate with regex
 
         Clean();
         CMD($"git fetch --depth 1 origin {latestTagHash}");
