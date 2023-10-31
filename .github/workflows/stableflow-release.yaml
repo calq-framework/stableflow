@@ -3,7 +3,10 @@ name: release
 on:
   workflow_dispatch:
     branches:
-      - 'v*.*'
+      - main
+  push:
+    branches:
+      - main
 
 permissions:
   contents: write

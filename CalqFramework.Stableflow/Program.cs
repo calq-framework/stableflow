@@ -7,90 +7,6 @@ using static Ghbvft6.Calq.Terminal.BashUtil;
 namespace Ghbvft6.Calq.Dvo;
 
 class Program {
-
-    public void merge(bool release) {
-        var TMPDIR = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(TMPDIR);
-
-        var mainBranchName = CMD("git branch --show-current").Trim();
-        var commitsCount = int.Parse(CMD($"git rev-list --count {mainBranchName}").Trim());
-
-        var branches = CMD("git branch --remotes --list origin/v[0-9]*.[0-9]* --sort -version:refname").Split('\n', StringSplitOptions.RemoveEmptyEntries);
-
-        var latestBranchFullName = branches.FirstOrDefault();
-        var latestBranchName = latestBranchFullName?.Replace("origin/", "");
-
-        if (string.IsNullOrEmpty(latestBranchName)) {
-            var currentVersion = GetVersion(GetProjectFile());
-            latestBranchName = $"v{currentVersion.Major}.{currentVersion.Minor}";
-            Clean();
-            CMD($"git switch --create {latestBranchName}");
-            MergeBumpPush(mainBranchName, latestBranchName, 1, release);
-            return;
-        }
-
-        Clean();
-        CMD($"git switch --orphan {latestBranchName}");
-        CMD($"git pull --depth=1 origin {latestBranchName}");
-
-        var projectFile = GetProjectFile();
-        var baseVersion = GetVersion(projectFile);
-        var assemblyName = GetAssemblyName(projectFile);
-
-        // TODO cache latest build so that this building step can be omitted
-        CMD($"dotnet publish \"{projectFile}\" --output \"{TMPDIR}/publish_base\" --configuration Release -p:ContinuousIntegrationBuild=true");
-        var baseDll = $"{TMPDIR}/publish_base/{assemblyName}.dll";
-
-        Clean();
-        MergeBranch(mainBranchName);
-
-        projectFile = GetProjectFile();
-        var modifiedVersion = GetVersion(projectFile);
-        assemblyName = GetAssemblyName(projectFile);
-
-        if (new Version(modifiedVersion.Major, modifiedVersion.Minor) != new Version(baseVersion.Major, baseVersion.Minor)
-            || new Version(modifiedVersion.Major, modifiedVersion.Minor) != new Version(GetVersionFromBranchName(latestBranchName).Major, GetVersionFromBranchName(latestBranchName).Minor)) {
-            var minorBranchName = $"v{modifiedVersion.Major}.{modifiedVersion.Minor}";
-            try {
-                CMD($"git switch --create {minorBranchName}");
-            } catch (CommandExecutionException) {
-                if (minorBranchName != latestBranchName) {
-                    throw;
-                }
-            }
-            UpdateVersion(projectFile, modifiedVersion);
-            Push(minorBranchName, release);
-
-            return;
-        }
-
-        CMD($"dotnet publish \"{projectFile}\" --output \"{TMPDIR}/publish_modified\" --no-restore --no-build --configuration Release -p:ContinuousIntegrationBuild=true");
-        var modifiedDll = $"{TMPDIR}/publish_modified/{assemblyName}.dll";
-
-        var versioningToolOutput = CMD($"synver \"{baseDll}\" \"{modifiedDll}\" 0.0.0");
-
-        var versionBumpString = Regex.Match(versioningToolOutput, @"([0-9]+\.[0-9]+\.[0-9]+)").Groups[1].Value;
-        var versionBump = new Version(versionBumpString);
-
-        if (versionBump.Major != 0 || versionBump.Minor != 0) {
-            var latestVersion = GetVersionFromBranchName(latestBranchName);
-            var bumpedVersion = new Version($"{latestVersion.Major + versionBump.Major}.{latestVersion.Minor + versionBump.Minor}.0");
-            var minorBranchName = $"v{bumpedVersion.Major}.{bumpedVersion.Minor}";
-            CMD($"git switch --create {minorBranchName}");
-            UpdateVersion(projectFile, bumpedVersion);
-            Push(latestBranchName, release);
-        } else if (versionBump.Revision != 0) {
-            Clean();
-            CMD($"git switch {latestBranchName}");
-            BumpVersion(latestBranchName, versionBump.Revision);
-            Push(latestBranchName, release);
-            //IterateMinorBranches(mainBranchName, minorBranchName => {
-            //    MergeAndBump(mainBranchName, minorBranchName, patchVersionBump, release);
-            //});
-        } else {
-        }
-    }
-
     private void Clean() {
         CMD("git reset --hard");
         CMD("git clean -d -x --force");
@@ -103,6 +19,11 @@ class Program {
 
     private Version GetVersionFromBranchName(string branchName) {
         var versionString = Regex.Match(branchName, @"v([0-9]+\.[0-9]+)").Groups[1].Value;
+        return new Version(versionString);
+    }
+
+    private Version GetVersionFromTagName(string branchName) {
+        var versionString = Regex.Match(branchName, @"v([0-9]+\.[0-9]+\.[0-9]+)").Groups[1].Value;
         return new Version(versionString);
     }
 
@@ -131,59 +52,90 @@ class Program {
         return Path.GetFileNameWithoutExtension(projectFileName);
     }
 
+    private void BuildPushTag(string projectFile, Version version, bool test) {
+        var projectContent = File.ReadAllText(projectFile);
 
-    private void ReleaseCore(bool doBuild) {
-        var projectFiles = Directory.GetFiles(".", "*.*proj", SearchOption.AllDirectories).Where(file => !Path.GetFileNameWithoutExtension(file).EndsWith("Test"));
+        // TODO build specific project and all test project that ref this project
+        CMD("dotnet restore --locked-mode -p:ContinuousIntegrationBuild=true");
+        CMD($"dotnet build --no-restore --configuration Release -p:ContinuousIntegrationBuild=true -p:Version={version}");
 
-        foreach (var projectFile in projectFiles) {
-            var projectContent = File.ReadAllText(projectFile);
-            var version = GetVersion(projectFile);
-
-            var buildOptions = doBuild ? "" : "--no-restore --no-build";
-
-            // TODO use XmlDocument
-            var packOptions = projectContent.Contains("Include=\"Microsoft.SourceLink.GitHub\"")
-                ? "-p:EmbedUntrackedSources=true -p:DebugType=embedded -p:PublishRepositoryUrl=true"
-                : "";
-
-            CMD($"dotnet pack \"{projectFile}\" {buildOptions} --output . --configuration Release -p:ContinuousIntegrationBuild=true {packOptions}");
-            var nupkg = $"./{GetAssemblyName(projectFile)}.{version}.nupkg";
-
-            CMD($"dotnet nuget push {nupkg} --source main");
-
-            CMD($"git tag v{version}"); // might be already tagged by other project, TODO version inheritance
-            CMD($"git push origin v{version}");
+        if (test) {
+            CMD("dotnet test --no-restore --no-build --configuration Release -p:ContinuousIntegrationBuild=true");
         }
+
+        // TODO use XmlDocument
+        var packOptions = projectContent.Contains("Include=\"Microsoft.SourceLink.GitHub\"")
+            ? "-p:EmbedUntrackedSources=true -p:DebugType=embedded -p:PublishRepositoryUrl=true"
+            : "";
+
+        CMD($"dotnet pack \"{projectFile}\" --no-restore --no-build --output . --configuration Release -p:ContinuousIntegrationBuild=true -p:Version={version} {packOptions}");
+        var nupkg = $"./{GetAssemblyName(projectFile)}.{version}.nupkg";
+
+        CMD($"dotnet nuget push {nupkg} --source main");
+
+        CMD($"git tag v{version}");
+        CMD($"git push origin v{version}");
     }
 
     public void release() {
-        ReleaseCore(false);
-    }
+        var TMPDIR = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(TMPDIR);
 
-    class MergeException : Exception {
-        public MergeException(string? message, Exception? innerException) : base(message, innerException) {
-        }
-    }
+        var tags = CMD("git ls-remote --tags --sort -version:refname origin v[0-9]*.[0-9]*.[0-9]*").Split('\n', StringSplitOptions.RemoveEmptyEntries); // outputs "e466424416af589cdb7b8a23258ade4f23a0c3ed refs/tags/v0.0.0"
 
-    private void MergeBranch(string mainBranchName) {
-        try {
-            CMD($"git -c user.name='Stableflow[action]' -c user.email='' merge -X theirs --no-ff --allow-unrelated-histories {mainBranchName}");
-        } catch (CommandExecutionException e) {
-            CMD("git -c user.name='Stableflow[action]' -c user.email='' merge --abort || true");
-            throw new MergeException("", e);
-        }
+        var latestTagDescription = tags.FirstOrDefault(); // TODO if minor branch then get latest on that minor branch instead (also don't allow for minor bumps) - var branchName = CMD("git branch --show-current").Trim();
 
-        try {
-            Directory.Delete(".github", true);
-        } catch (DirectoryNotFoundException) {
+        var modifiedProjectFile = GetProjectFile();
+        var modifiedVersion = GetVersion(modifiedProjectFile);
+        var modifiedAssemblyName = GetAssemblyName(modifiedProjectFile);
+
+        if (string.IsNullOrEmpty(latestTagDescription)) {
+            BuildPushTag(modifiedProjectFile, modifiedVersion, true);
+            return;
         }
 
-        CMD("dotnet restore --use-lock-file --force-evaluate -p:ContinuousIntegrationBuild=true");
-        CMD("dotnet build --no-restore --configuration Release -p:ContinuousIntegrationBuild=true");
-        try {
-            CMD("dotnet test --no-restore --no-build --configuration Release -p:ContinuousIntegrationBuild=true");
-        } catch (CommandExecutionException e) {
-            throw new MergeException("", e);
+        var latestTagHash = latestTagDescription.Split(' ')[0]; // TODO re-validate with regex
+
+        Clean();
+        CMD($"git fetch --depth 1 origin {latestTagHash}");
+        CMD($"git checkout {latestTagHash}");
+
+        var baseProjectFile = GetProjectFile();
+        var baseVersion = GetVersion(baseProjectFile);
+        var baseAssemblyName = GetAssemblyName(baseProjectFile);
+
+        if (modifiedVersion != baseVersion) {
+            CMD($"git switch -");
+            BuildPushTag(modifiedProjectFile, modifiedVersion, true);
+            return;
+        }
+
+        // TODO cache latest build so that this building step can be omitted
+        CMD($"dotnet publish \"{baseProjectFile}\" --output \"{TMPDIR}/publish_base\" --locked-mode --configuration Release -p:ContinuousIntegrationBuild=true");
+        var baseDll = $"{TMPDIR}/publish_base/{baseAssemblyName}.dll";
+
+        Clean();
+        CMD($"git switch -");
+        
+        CMD($"dotnet publish \"{modifiedProjectFile}\" --output \"{TMPDIR}/publish_modified\" --locked-mode --configuration Release -p:ContinuousIntegrationBuild=true");
+        var modifiedDll = $"{TMPDIR}/publish_modified/{modifiedAssemblyName}.dll";
+
+        var versioningToolOutput = CMD($"synver \"{baseDll}\" \"{modifiedDll}\" 0.0.0");
+
+        var versionBumpString = Regex.Match(versioningToolOutput, @"([0-9]+\.[0-9]+\.[0-9]+)").Groups[1].Value;
+        var versionBump = new Version(versionBumpString);
+
+        var latestTagName = latestTagDescription.Split('/')?[^1]!; // TODO re-validate with regex
+        var latestVersion = GetVersionFromTagName(latestTagName);
+        // TODO get bumped version directly from synver output
+        if (versionBump.Major != 0 || versionBump.Minor != 0) {
+            var bumpedVersion = new Version(latestVersion.Major + versionBump.Major, latestVersion.Major == versionBump.Major ? latestVersion.Minor + versionBump.Minor : versionBump.Minor, versionBump.Revision);
+            BuildPushTag(modifiedProjectFile, bumpedVersion, true); // TODO do pr instead
+        } else if (versionBump.Revision != 0) {
+            var bumpedVersion = new Version(latestVersion.Major, latestVersion.Minor, latestVersion.Revision + versionBump.Revision);
+            BuildPushTag(modifiedProjectFile, bumpedVersion, true);
+        } else {
+            // assembly file hasn't changed
         }
     }
 
@@ -209,43 +161,10 @@ class Program {
         UpdateVersion(projectFile, newReleaseVersion);
     }
 
-    private void Push(string branchName, bool doRelease) {
-        CMD("git add '*/packages.lock.json'");
-        CMD("git add .github || true");
-        CMD("git -c user.name='Stableflow[action]' -c user.email='' commit --amend --no-edit");
-        CMD($"git push origin {branchName}");
-
-        if (doRelease) {
-            ReleaseCore(false);
-        }
-    }
-
-    private void MergeBumpPush(string mainBranchName, string branchName, int patchVersionBump, bool doRelease) {
-        MergeBranch(mainBranchName);
-        BumpVersion(branchName, patchVersionBump);
-        Push(branchName, doRelease);
-    }
-
-    private void IterateMinorBranches(string mainBranchName, Action<string> action) {
-        var minorBranches = CMD("git branch --remotes --list origin/v[0-9]*.[0-9]* --sort -version:refname").Split('\n', StringSplitOptions.RemoveEmptyEntries);
-        minorBranches = minorBranches[1..];
-
-        foreach (var branchFullName in minorBranches) {
-            var branchName = branchFullName.Replace("origin/", "");
-            Clean();
-            CMD($"git switch --orphan {branchName}");
-            CMD($"git pull --depth=1 origin {branchName}");
-
-            try {
-                action(branchName);
-            } catch (MergeException) {
-                Console.WriteLine($"Failed merge at {branchName}");
-                break;
-            }
-        }
-
-        Clean();
-        CMD($"git switch {mainBranchName}");
+    private void CommitLockFile() {
+        CMD("git add '**/packages.lock.json'");
+        CMD("git -c user.name='Stableflow[action]' -c user.email='' commit -m 'update packages.lock.json'");
+        CMD($"git push origin {CMD("git branch --show-current").Trim()}");
     }
 
     static void Main(string[] args) {

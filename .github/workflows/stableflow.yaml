@@ -61,25 +61,12 @@ jobs:
     - name: clean workdir
       run: rm -rf *
     - uses: actions/checkout@v3
-    - name: fetch minor branches
-      run: git fetch --depth=1 origin '+refs/heads/v*:refs/remotes/origin/v*' || true
-    - name: switch to latest
-      run: |
-        echo "BASE_BRANCH=$(git branch --show-current)" >> "$GITHUB_ENV"
-        LATEST_BRANCH_FULL_NAME=$(git branch --remotes --list origin/v[0-9]*.[0-9]* --sort -version:refname | head -n 1 | xargs)
-        LATEST_BRANCH_NAME=${LATEST_BRANCH_FULL_NAME#"origin/"}
-        if [ "$LATEST_BRANCH_NAME" != "" ]; then
-          git switch --orphan latest
-          git pull --depth=1 origin $LATEST_BRANCH_NAME
-        fi
     - uses: actions/cache@v3
       with:
         path: ~/.nuget/packages
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
         restore-keys: |
           ${{ runner.os }}-nuget-
-    - name: switch to base branch
-      run: git switch $BASE_BRANCH
     - name: self-install synver
       shell: bash
       run: |
