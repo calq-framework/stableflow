@@ -50,13 +50,13 @@ jobs:
       shell: bash
       run: |
         if [[ "${{ github.repository }}" != "calq-framework/synver" ]]; then
-          dotnet tool update --global CalqFramework.Synver # TODO --version ${{ github.workflow_ref }} || true
+          dotnet tool update --global CalqFramework.Synver # TODO --version ${{ github.workflow_ref }}
         fi
     - name: install stableflow
       shell: bash
       run: |
         if [[ "${{ github.repository }}" != "calq-framework/stableflow" ]]; then
-          dotnet tool update --global CalqFramework.Stableflow # TODO --version ${{ github.workflow_ref }} || true
+          dotnet tool update --global CalqFramework.Stableflow # TODO --version ${{ github.workflow_ref }}
         fi
     - name: clean workdir
       run: rm -rf *
