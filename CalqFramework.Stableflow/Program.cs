@@ -133,10 +133,11 @@ class Program {
         var latestVersion = GetVersionFromTagName(latestTagName);
         // TODO get bumped version directly from synver output
         if (versionBump.Major != 0 || versionBump.Minor != 0) {
-            var bumpedVersion = new Version(latestVersion.Major + versionBump.Major, latestVersion.Major == versionBump.Major ? latestVersion.Minor + versionBump.Minor : versionBump.Minor, versionBump.Revision);
+            var bumpedVersion = new Version(latestVersion.Major + versionBump.Major, latestVersion.Major == versionBump.Major ? latestVersion.Minor + versionBump.Minor : versionBump.Minor, versionBump.Build);
             BuildPushTag(modifiedProjectFile, bumpedVersion, true); // TODO do pr instead
-        } else if (versionBump.Revision != 0) {
-            var bumpedVersion = new Version(latestVersion.Major, latestVersion.Minor, latestVersion.Revision + versionBump.Revision);
+        } else if (versionBump.Build != 0) {
+            var bumpedVersion = new Version(latestVersion.Major, latestVersion.Minor, latestVersion.Build + versionBump.Build);
+            Console.WriteLine(bumpedVersion);
             BuildPushTag(modifiedProjectFile, bumpedVersion, true);
         } else {
             // assembly file hasn't changed
@@ -160,7 +161,7 @@ class Program {
         var projectFile = GetProjectFile();
         var baseVersion = GetVersion(projectFile);
         var branchVersion = GetVersionFromBranchName(branchName);
-        var newReleaseVersion = new Version($"{branchVersion.Major}.{branchVersion.Minor}.{baseVersion.Revision + patchVersionBump}");
+        var newReleaseVersion = new Version($"{branchVersion.Major}.{branchVersion.Minor}.{baseVersion.Build + patchVersionBump}");
 
         UpdateVersion(projectFile, newReleaseVersion);
     }
