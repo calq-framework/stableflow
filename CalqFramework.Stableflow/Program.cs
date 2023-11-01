@@ -66,7 +66,7 @@ class Program {
         // TODO use XmlDocument
         var packOptions = projectContent.Contains("Include=\"Microsoft.SourceLink.GitHub\"")
             ? "-p:EmbedUntrackedSources=true -p:DebugType=embedded -p:PublishRepositoryUrl=true"
-            : "";
+            : $"-p:RepositoryUrl={CMD("git config --get remote.origin.url").Trim()}";
 
         CMD($"dotnet pack \"{projectFile}\" --no-restore --no-build --output . --configuration Release -p:ContinuousIntegrationBuild=true -p:Version={version} {packOptions}");
         var nupkg = $"./{GetAssemblyName(projectFile)}.{version}.nupkg";
