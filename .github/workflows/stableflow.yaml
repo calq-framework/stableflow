@@ -32,14 +32,14 @@ jobs:
         PACKAGE_OWNER="calq-framework"
         TOOL_METADATA_DIR=".dotnet/tools/.metadata/$PACKAGE_ID"
         mkdir -p $TOOL_METADATA_DIR
-        curl --fail --output "$TOOL_METADATA_DIR/index.json" "https://${{ github.triggering_actor }}:${{ secrets.CALQ_FRAMEWORK_NUGET_PAT }}@nuget.pkg.github.com/$PACKAGE_OWNER/$PACKAGE_ID/index.json"
+        curl --output "$TOOL_METADATA_DIR/index.json" "https://${{ github.triggering_actor }}:${{ secrets.CALQ_FRAMEWORK_NUGET_PAT }}@nuget.pkg.github.com/$PACKAGE_OWNER/$PACKAGE_ID/index.json"
     - name: download stableflow metadata
       run: |
         PACKAGE_ID="CalqFramework.Stableflow"
         PACKAGE_OWNER="calq-framework"
         TOOL_METADATA_DIR=".dotnet/tools/.metadata/$PACKAGE_ID"
         mkdir -p $TOOL_METADATA_DIR
-        curl --fail --output "$TOOL_METADATA_DIR/index.json" "https://${{ github.triggering_actor }}:${{ secrets.CALQ_FRAMEWORK_NUGET_PAT }}@nuget.pkg.github.com/$PACKAGE_OWNER/$PACKAGE_ID/index.json"
+        curl --output "$TOOL_METADATA_DIR/index.json" "https://${{ github.triggering_actor }}:${{ secrets.CALQ_FRAMEWORK_NUGET_PAT }}@nuget.pkg.github.com/$PACKAGE_OWNER/$PACKAGE_ID/index.json"
     - uses: actions/cache@v3
       with:
         path: ~/.dotnet/tools
