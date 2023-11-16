@@ -11,6 +11,38 @@ partial class Program {
         CMD("git clean -d -x --force");
     }
 
+    private List<string> GetChangedProjectFiles(string commitHash) {
+        var projectFiles = Directory.GetFiles(".", "*.*proj", SearchOption.AllDirectories).Where(file => !Path.GetFileNameWithoutExtension(file).EndsWith("Test"));
+        var projectDirs = projectFiles.Select(x => Path.GetDirectoryName(x)!).OrderByDescending(x => x.Length); ;
+        // TODO optimize
+        foreach (var projectDir in projectDirs) {
+            var firstChangedSubpath = projectDirs.FirstOrDefault(x => x.Equals(projectDir) || x.StartsWith($"{projectDir}{Path.DirectorySeparatorChar}"));
+            if (firstChangedSubpath != null) {
+                throw new Exception("more than one project in the same directory (including subdirectories)");
+            }
+        }
+
+        var changedFiles = CMD($"git diff {commitHash}").Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        var changedDirs = changedFiles.Select(x => Path.GetDirectoryName(x)!).OrderByDescending(x => x.Length);
+
+        var changedProjects = new List<string>();
+        // TODO optimize
+        foreach (var projectFile in projectFiles) {
+            var projectDir = Path.GetDirectoryName(projectFile);
+            var firstChangedSubpath = changedDirs.FirstOrDefault(x => x.Equals(projectDir) || x.StartsWith($"{projectDir}{Path.DirectorySeparatorChar}"));
+            if (firstChangedSubpath != null) {
+                changedProjects.Add(projectFile);
+            }
+        }
+
+        return changedProjects;
+    }
+
+    private List<string> GetProjectFiles() {
+        var currentProjectFiles = Directory.GetFiles(".", "*.*proj", SearchOption.AllDirectories).Where(file => !Path.GetFileNameWithoutExtension(file).EndsWith("Test"));
+        return currentProjectFiles.ToList();
+    }
+
     private string GetProjectFile() {
         var currentProjectFiles = Directory.GetFiles(".", "*.*proj", SearchOption.AllDirectories).Where(file => !Path.GetFileNameWithoutExtension(file).EndsWith("Test")).ToArray();
         return currentProjectFiles.FirstOrDefault()!;
@@ -51,7 +83,7 @@ partial class Program {
         return Path.GetFileNameWithoutExtension(projectFileName);
     }
 
-    private void BuildPushTag(string projectFile, Version version, bool test) {
+    private void BuildPush(string projectFile, Version version, bool test) {
         var projectContent = File.ReadAllText(projectFile);
 
         // TODO build specific project and all test project that ref this project
@@ -71,7 +103,17 @@ partial class Program {
         var nupkg = $"./{GetAssemblyName(projectFile)}.{version}.nupkg";
 
         CMD($"dotnet nuget push {nupkg} --source main");
+    }
 
+    private void BuildPushTag(IEnumerable<string> projectFiles, Version version, bool test) {
+        foreach (var projectFile in projectFiles) {
+            BuildPush(projectFile, version, true);
+        }
+        // FIXME push here instead - after everything was built
+        Tag(version);
+    }
+
+    private void Tag(Version version) {
         CMD($"git tag v{version}");
         CMD($"git push origin v{version}");
     }
