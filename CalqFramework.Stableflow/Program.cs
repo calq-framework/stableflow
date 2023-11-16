@@ -16,8 +16,9 @@ partial class Program {
         var projectDirs = projectFiles.Select(x => Path.GetDirectoryName(x)!).OrderByDescending(x => x.Length); ;
         // TODO optimize
         foreach (var projectDir in projectDirs) {
-            var firstChangedSubpath = projectDirs.FirstOrDefault(x => x.Equals(projectDir) || x.StartsWith($"{projectDir}{Path.DirectorySeparatorChar}"));
-            if (firstChangedSubpath != null) {
+            var anyMatchingSubdir = projectDirs.FirstOrDefault(x => x.StartsWith($"{projectDir}{Path.DirectorySeparatorChar}"));
+            var matchingDirCount = projectDirs.Select(x => x.Equals(projectDir)).Count();
+            if (anyMatchingSubdir != null || matchingDirCount >= 2) {
                 throw new Exception("more than one project in the same directory (including subdirectories)");
             }
         }
