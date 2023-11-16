@@ -23,12 +23,12 @@ partial class Program {
         }
 
         var latestTagHash = Regex.Split(latestTagDescription, @"\s+")[0]; // TODO re-validate with regex
+        CMD($"git fetch --depth 1 origin {latestTagHash}");
 
         var modifiedProjectFiles = GetChangedProjectFiles(latestTagHash);
         var highestModifiedVersion = modifiedProjectFiles.Select(x => GetVersion(x)).OrderByDescending(x => x).First()!;
         var assembliesByModifiedProjectFiles = modifiedProjectFiles.ToDictionary(x => x, x => GetAssemblyName(x));
 
-        CMD($"git fetch --depth 1 origin {latestTagHash}");
         CMD($"git checkout {latestTagHash}");
 
         var baseProjectFiles = GetProjectFiles();
