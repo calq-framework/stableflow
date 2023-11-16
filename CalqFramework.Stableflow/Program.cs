@@ -23,7 +23,7 @@ partial class Program {
             }
         }
 
-        var changedFiles = CMD($"git diff {commitHash} --name-only").Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        var changedFiles = CMD($"git diff {commitHash} --name-only").Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(x => $".{Path.DirectorySeparatorChar}{x}");
         var changedDirs = changedFiles.Select(x => Path.GetDirectoryName(x)!).OrderByDescending(x => x.Length);
 
         var changedProjects = new List<string>();

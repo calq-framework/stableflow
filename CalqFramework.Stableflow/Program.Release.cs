@@ -73,7 +73,7 @@ partial class Program {
             foreach (var modifiedProjectFile in modifiedProjectFiles) {
                 var assemblyName = assembliesByModifiedProjectFiles[modifiedProjectFile];
                 var projectFile = modifiedProjectFile;
-                var outputDir = $"{TMPDIR}/publish_base/{assemblyName}";
+                var outputDir = $"{TMPDIR}/publish_release/{assemblyName}";
                 CMD($"dotnet restore \"{projectFile}\" --locked-mode -p:ContinuousIntegrationBuild=true");
                 CMD($"dotnet build \"{projectFile}\" --no-restore --configuration Release -p:ContinuousIntegrationBuild=true");
                 CMD($"dotnet publish \"{projectFile}\" --output \"{outputDir}\" --no-restore --no-build --configuration Release -p:ContinuousIntegrationBuild=true");
