@@ -11,27 +11,31 @@ partial class Program {
         CMD("git clean -d -x --force");
     }
 
-    private List<string> GetChangedProjectFiles(string commitHash) {
-        var projectFiles = Directory.GetFiles(".", "*.*proj", SearchOption.AllDirectories).Where(file => !Path.GetFileNameWithoutExtension(file).EndsWith("Test"));
-        var projectDirs = projectFiles.Select(x => Path.GetDirectoryName(x)!).OrderByDescending(x => x.Length); ;
-        // TODO optimize
-        foreach (var projectDir in projectDirs) {
-            var anyMatchingSubdir = projectDirs.FirstOrDefault(x => x.StartsWith($"{projectDir}{Path.DirectorySeparatorChar}"));
-            var matchingDirCount = projectDirs.Select(x => x.Equals(projectDir)).Count();
-            if (anyMatchingSubdir != null || matchingDirCount >= 2) {
-                throw new Exception("more than one project in the same directory (including subdirectories)");
-            }
-        }
+    private bool IsInSameOrSubdirectory(string filePath, IEnumerable<string> files) {
+        string fileDirectory = Path.GetDirectoryName(filePath)!;
 
+        return files.Any(file =>
+            fileDirectory.Equals(Path.GetDirectoryName(file), StringComparison.OrdinalIgnoreCase) ||
+            fileDirectory.StartsWith($"{Path.GetDirectoryName(file)}{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase)
+        );
+    }
+
+    private bool IsInSameOrParentDirectory(string filePath, IEnumerable<string> files) {
+        string fileDirectory = Path.GetDirectoryName(filePath)!;
+
+        return files.Any(file =>
+            fileDirectory.Equals(Path.GetDirectoryName(file), StringComparison.OrdinalIgnoreCase) ||
+            Path.GetDirectoryName(file)!.StartsWith($"{fileDirectory}{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase)
+        );
+    }
+
+    private ICollection<string> GetChangedProjectFiles(string commitHash) {
+        var projectFiles = GetProjectFiles();
         var changedFiles = CMD($"git diff {commitHash} --name-only").Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(x => $".{Path.DirectorySeparatorChar}{x}");
-        var changedDirs = changedFiles.Select(x => Path.GetDirectoryName(x)!).OrderByDescending(x => x.Length);
 
         var changedProjects = new List<string>();
-        // TODO optimize
         foreach (var projectFile in projectFiles) {
-            var projectDir = Path.GetDirectoryName(projectFile);
-            var firstChangedSubpath = changedDirs.FirstOrDefault(x => x.Equals(projectDir) || x.StartsWith($"{projectDir}{Path.DirectorySeparatorChar}"));
-            if (firstChangedSubpath != null) {
+            if (IsInSameOrParentDirectory(projectFile, changedFiles)) {
                 changedProjects.Add(projectFile);
             }
         }
@@ -39,9 +43,15 @@ partial class Program {
         return changedProjects;
     }
 
-    private List<string> GetProjectFiles() {
-        var currentProjectFiles = Directory.GetFiles(".", "*.*proj", SearchOption.AllDirectories).Where(file => !Path.GetFileNameWithoutExtension(file).EndsWith("Test"));
-        return currentProjectFiles.ToList();
+    private IEnumerable<string> GetProjectFiles() {
+        IEnumerable<string> projectFiles = Directory.GetFiles(".", "*.*proj");
+        IEnumerable<string> testProjectFiles = Directory.GetFiles(".", "*Test.*proj");
+
+        projectFiles = projectFiles.Where(file => !IsInSameOrSubdirectory(file, testProjectFiles));
+        // TODO validate this logic
+        projectFiles = projectFiles.Where(file => !IsInSameOrSubdirectory(file, projectFiles.Except(new[] { file }))); // filter out nested projects
+
+        return projectFiles;
     }
 
     private string GetProjectFile() {
