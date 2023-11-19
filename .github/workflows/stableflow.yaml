@@ -32,6 +32,7 @@ jobs:
         key: ${{ runner.os }}-dotnet-tools-${{ github.workflow_sha }}
         restore-keys: |
           ${{ runner.os }}-dotnet-tools-
+    - uses: actions/checkout@v3
     - name: install synver
       shell: bash
       run: |
@@ -47,9 +48,6 @@ jobs:
             | grep -o '[0-9]*\.[0-9]*\.[0-9]*')
           dotnet tool update --global CalqFramework.Stableflow --version $version
         fi
-    - name: clean workdir
-      run: rm -rf *
-    - uses: actions/checkout@v3
     - uses: actions/cache@v3
       with:
         path: ~/.nuget/packages

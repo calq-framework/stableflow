@@ -99,15 +99,7 @@ partial class Program {
             BuildPushTag(modifiedProjectFiles, bumpedVersion, true);
         } else {
             // assembly files haven't changed
-            var theLatestTagDescription = CMD("git ls-remote --tags origin latest").Split('\n', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
-            if (theLatestTagDescription != null) {
-                var theLatestTagHash = Regex.Split(theLatestTagDescription, @"\s+")[0]; // TODO re-validate with regex
-                if (theLatestTagHash == latestTagHash) {
-                    return;
-                }
-            }
-            Clean();
-            CMD($"git checkout {latestTagHash}");
+            // TODO retag latest version tag
             TagAsLatest();
         }
     }
