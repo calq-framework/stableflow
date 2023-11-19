@@ -123,11 +123,17 @@ partial class Program {
         }
         // FIXME push here instead - after everything was built
         Tag(version);
+        TagAsLatest();
     }
 
     private void Tag(Version version) {
         CMD($"git tag v{version}");
         CMD($"git push origin v{version}");
+    }
+
+    private void TagAsLatest() {
+        CMD($"git tag latest --force");
+        CMD($"git push origin latest --force");
     }
 
     private void UpdateVersion(string projectFile, Version version) {

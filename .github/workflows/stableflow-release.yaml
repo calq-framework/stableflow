@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   release:
-    uses: calq-framework/stableflow/.github/workflows/stableflow.yaml@v0
+    uses: calq-framework/stableflow/.github/workflows/stableflow.yaml@main
     with:
       command: release
     secrets:
