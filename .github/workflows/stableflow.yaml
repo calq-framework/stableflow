@@ -21,6 +21,20 @@ jobs:
   stableflow:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v3
+    - name: get called workflow ref
+      id: workflows-ref
+      run: |
+        workflow_ref=${{ github.workflow_ref }}
+        repository="${{ github.repository }}/"
+        ref="@${{ github.ref }}"
+        workflow_path=${workflow_ref#"$repository"}
+        echo "$workflow_path"
+        workflow_path=${workflow_path%"$ref"}
+        echo "$workflow_path"
+        called_workflow_ref=$(cat "$workflow_path" | grep 'uses: calq-framework/stableflow/.github/workflows/stableflow.yaml' | cut -d"@" -f2)
+        echo "$called_workflow_ref"
+        echo "CALLED_WORKFLOW_REF=$called_workflow_ref" >> $GITHUB_ENV
     - name: setup nuget config
       continue-on-error: true
       run: |
@@ -42,15 +56,18 @@ jobs:
       shell: bash
       run: |
         if [[ "${{ github.repository }}" != "calq-framework/stableflow" ]]; then
-          echo "github.workflow_ref: ${{ github.workflow_ref }}"
-          echo "github.action_ref: ${{ github.action_ref }}"
-          version=$(echo '${{ github.workflow_ref }}' \
-            | grep -o 'refs/tags/v[0-9]*\.[0-9]*\.[0-9]*' \
-            | grep -o '[0-9]*\.[0-9]*\.[0-9]*')
+          echo "CALLED_WORKFLOW_REF: $CALLED_WORKFLOW_REF"
+          version=""
+          if [[ "$CALLED_WORKFLOW_REF" == "latest" ]]; then
+            version='*'
+          else
+            version=$(echo "$CALLED_WORKFLOW_REF" \
+              | grep -o 'v[0-9]*\.[0-9]*\.[0-9]*' \
+              | grep -o '[0-9]*\.[0-9]*\.[0-9]*')
+          fi
           echo "installing CalqFramework.Stableflow $version"
-          dotnet tool update --global CalqFramework.Stableflow --version $version
+          dotnet tool update --global CalqFramework.Stableflow --version "$version"
         fi
-    - uses: actions/checkout@v3
     - uses: actions/cache@v3
       with:
         path: ~/.nuget/packages
