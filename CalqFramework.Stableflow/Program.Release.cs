@@ -99,7 +99,6 @@ partial class Program {
             BuildPushTag(modifiedProjectFiles, bumpedVersion, true);
         } else {
             // assembly files haven't changed
-            // TODO retag latest version tag
             TagAsLatest();
         }
     }
