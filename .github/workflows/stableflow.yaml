@@ -42,9 +42,11 @@ jobs:
       shell: bash
       run: |
         if [[ "${{ github.repository }}" != "calq-framework/stableflow" ]]; then
+          echo "github.workflow_ref: ${{ github.workflow_ref }}"
           version=$(echo '${{ github.workflow_ref }}' \
             | grep -o 'refs/tags/v[0-9]*\.[0-9]*\.[0-9]*' \
             | grep -o '[0-9]*\.[0-9]*\.[0-9]*')
+          echo "installing CalqFramework.Stableflow $version"
           dotnet tool update --global CalqFramework.Stableflow --version $version
         fi
     - uses: actions/checkout@v3
