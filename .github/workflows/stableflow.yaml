@@ -30,7 +30,7 @@ jobs:
         ref="@${{ github.ref }}"
         workflow_path=${workflow_ref#"$repository"}
         workflow_path=${workflow_path%"$ref"}
-        called_workflow_ref=$(cat "$workflow_path" | grep 'uses: calq-framework/stableflow/.github/workflows/stableflow.yaml' | cut -d"@" -f2 | xargs)
+        called_workflow_ref=$(cat "$workflow_path" | grep 'uses: calq-framework/stableflow/.github/workflows/stableflow.yaml' | cut -d"@" -f2 | tr -d '[:space:]')
         echo "CALLED_WORKFLOW_REF=$called_workflow_ref" >> $GITHUB_ENV
         echo "CALLED_WORKFLOW_REF: \"$called_workflow_ref\""
     - name: setup nuget config
