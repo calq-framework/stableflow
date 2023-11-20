@@ -26,7 +26,13 @@ partial class Program {
         CMD($"git fetch --depth 1 origin {latestTagHash}");
 
         var modifiedProjectFiles = GetChangedProjectFiles(latestTagHash);
-        var highestModifiedVersion = modifiedProjectFiles.Select(x => GetVersion(x)).OrderByDescending(x => x).First()!;
+
+        if (modifiedProjectFiles.Any() == false) {
+            TagAsLatest();
+            return;
+        }
+
+        var highestModifiedVersion = modifiedProjectFiles.Select(x => GetVersion(x)).OrderByDescending(x => x).First();
         var assembliesByModifiedProjectFiles = modifiedProjectFiles.ToDictionary(x => x, x => GetAssemblyName(x));
 
         CMD($"git checkout {latestTagHash}");
