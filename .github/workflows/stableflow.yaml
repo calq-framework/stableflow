@@ -29,12 +29,10 @@ jobs:
         repository="${{ github.repository }}/"
         ref="@${{ github.ref }}"
         workflow_path=${workflow_ref#"$repository"}
-        echo "$workflow_path"
         workflow_path=${workflow_path%"$ref"}
-        echo "$workflow_path"
         called_workflow_ref=$(cat "$workflow_path" | grep 'uses: calq-framework/stableflow/.github/workflows/stableflow.yaml' | cut -d"@" -f2)
-        echo "$called_workflow_ref"
         echo "CALLED_WORKFLOW_REF=$called_workflow_ref" >> $GITHUB_ENV
+        echo "CALLED_WORKFLOW_REF: $called_workflow_ref"
     - name: setup nuget config
       continue-on-error: true
       run: |
@@ -59,8 +57,10 @@ jobs:
           echo "CALLED_WORKFLOW_REF: $CALLED_WORKFLOW_REF"
           version=""
           if [[ "$CALLED_WORKFLOW_REF" == "latest" ]]; then
+            echo "latest"
             version='*'
           else
+            echo "not latest"
             version=$(echo "$CALLED_WORKFLOW_REF" \
               | grep -o 'v[0-9]*\.[0-9]*\.[0-9]*' \
               | grep -o '[0-9]*\.[0-9]*\.[0-9]*')
