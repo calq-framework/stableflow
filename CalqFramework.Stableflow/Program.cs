@@ -60,6 +60,13 @@ partial class Program {
         return currentProjectFiles.FirstOrDefault()!;
     }
 
+    private string? GetTestProject(string projectFile) {
+        string projectDirectory = Path.GetDirectoryName(projectFile)!;
+        var projectFileName = Path.GetFileNameWithoutExtension(projectFile);
+        var testProjectFiles = Directory.GetFiles(Path.Combine(projectDirectory, ".."), $"{projectFileName}Test.*proj", SearchOption.AllDirectories);
+        return testProjectFiles.FirstOrDefault();
+    }
+
     private Version GetVersionFromBranchName(string branchName) {
         var versionString = Regex.Match(branchName, @"v([0-9]+\.[0-9]+)").Groups[1].Value;
         return new Version(versionString);
@@ -99,11 +106,14 @@ partial class Program {
         var projectContent = File.ReadAllText(projectFile);
 
         // TODO build specific project and all test project that ref this project
-        CMD("dotnet restore --locked-mode -p:ContinuousIntegrationBuild=true");
-        CMD($"dotnet build --no-restore --configuration Release -p:ContinuousIntegrationBuild=true -p:Version={version}");
+        CMD($"dotnet restore \"{projectFile}\" --locked-mode -p:ContinuousIntegrationBuild=true");
+        CMD($"dotnet build \"{projectFile}\" --no-restore --configuration Release -p:ContinuousIntegrationBuild=true -p:Version={version}");
 
         if (test) {
-            CMD("dotnet test --no-restore --no-build --configuration Release -p:ContinuousIntegrationBuild=true");
+            var testProjectFile = GetTestProject(projectFile);
+            if (testProjectFile != null) {
+                CMD($"dotnet test \"{testProjectFile}\" --no-restore --no-build --configuration Release -p:ContinuousIntegrationBuild=true");
+            }
         }
 
         // TODO use XmlDocument
