@@ -102,6 +102,17 @@ partial class Program {
         return Path.GetFileNameWithoutExtension(projectFileName);
     }
 
+    private string GetPackageId(string projectFile) {
+        var content = File.ReadAllText(projectFile);
+        var packageIdPattern = "<PackageId>(.*?)</PackageId>";
+        var match = Regex.Match(content, packageIdPattern);
+
+        if (match.Success) {
+            return match.Groups[1].Value;
+        }
+
+        return GetAssemblyName(projectFile);
+    }
     private void BuildPush(string projectFile, Version version, bool test) {
         var projectContent = File.ReadAllText(projectFile);
 
@@ -122,7 +133,7 @@ partial class Program {
             : $"-p:RepositoryUrl={CMD("git config --get remote.origin.url").Trim()}";
 
         CMD($"dotnet pack \"{projectFile}\" --no-restore --no-build --output . --configuration Release -p:ContinuousIntegrationBuild=true -p:Version={version} {packOptions}");
-        var nupkg = $"./{GetAssemblyName(projectFile)}.{version}.nupkg";
+        var nupkg = $"./{GetPackageId(projectFile)}.{version}.nupkg";
 
         CMD($"dotnet nuget push {nupkg} --source main");
     }
