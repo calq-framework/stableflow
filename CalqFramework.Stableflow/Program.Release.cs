@@ -87,10 +87,8 @@ partial class Program {
             }
 
             foreach (var modifiedProjectFile in modifiedProjectFiles) {
-                var versioningToolOutput = CMD($"synver \"{baseDllByModifiedProjectFile[modifiedProjectFile]}\" \"{modifiedDllByModifiedProjectFile[modifiedProjectFile]}\" 0.0.0");
-
-                var versionBumpString = Regex.Match(versioningToolOutput, @"([0-9]+\.[0-9]+\.[0-9]+)").Groups[1].Value;
-                versionBump = new Version(versionBumpString) > versionBump ? new Version(versionBumpString) : versionBump;
+                var synverVersionBump = CalqFramework.Stableflow.Synver.CompareAssemblies(baseDllByModifiedProjectFile[modifiedProjectFile], modifiedDllByModifiedProjectFile[modifiedProjectFile]);
+                versionBump = new Version(synverVersionBump.major, synverVersionBump.minor, synverVersionBump.patch) > versionBump ? new Version(synverVersionBump.major, synverVersionBump.minor, synverVersionBump.patch) : versionBump;
             }
         }
 

@@ -44,12 +44,6 @@ jobs:
         key: ${{ runner.os }}-dotnet-tools-${{ github.workflow_sha }}
         restore-keys: |
           ${{ runner.os }}-dotnet-tools-
-    - name: install synver
-      shell: bash
-      run: |
-        if [[ "${{ github.repository }}" != "calq-framework/synver" ]]; then
-          dotnet tool update --global CalqFramework.Synver # TODO --version ${{ github.workflow_ref }}
-        fi
     - name: install stableflow
       shell: bash
       run: |
@@ -57,10 +51,8 @@ jobs:
           echo "CALLED_WORKFLOW_REF: $CALLED_WORKFLOW_REF"
           version=""
           if [[ "$CALLED_WORKFLOW_REF" == "latest" ]]; then
-            echo "latest"
             version='*'
           else
-            echo "not latest"
             echo "CALLED_WORKFLOW_REF: \"$CALLED_WORKFLOW_REF\""
             version=$(echo "$CALLED_WORKFLOW_REF" \
               | grep -o 'v[0-9]*\.[0-9]*\.[0-9]*' \
@@ -75,16 +67,6 @@ jobs:
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
         restore-keys: |
           ${{ runner.os }}-nuget-
-    - name: self-install synver
-      shell: bash
-      run: |
-        if [[ "${{ github.repository }}" == "calq-framework/synver" ]]; then
-          dotnet tool uninstall --global CalqFramework.Synver || true
-          dotnet pack -c Release --output .
-          nupkg=$(find . -maxdepth 1 -type f -name "*.nupkg")
-          version=$(echo "$nupkg" | sed -n 's/.*\([0-9]\+\.[0-9]\+\.[0-9]\+\)\.nupkg/\1/p')
-          dotnet tool install --global --add-source . --version "$version" CalqFramework.Synver # doesn't use local source unless version is specified
-        fi
     - name: self-install stableflow
       shell: bash
       run: |
