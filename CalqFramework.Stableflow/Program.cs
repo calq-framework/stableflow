@@ -1,7 +1,7 @@
 ﻿using Ghbvft6.Calq.Tooler;
 using System.Text.RegularExpressions;
 using System.Xml;
-using static Ghbvft6.Calq.Terminal.BashUtil;
+using static CalqFramework.Terminal.BashUtil;
 
 namespace Ghbvft6.Calq.Dvo;
 
