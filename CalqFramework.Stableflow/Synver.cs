@@ -310,6 +310,9 @@ namespace CalqFramework.Stableflow {
                         if (assembly.StartsWith(Path.Combine(globalPackagesFolder, "microsoft.netcore.app.runtime"))) { // TODO validate if _correct_
                             continue; // otherwise mscorlib.dll is loaded twice and fails
                         }
+                        if (assembly.StartsWith(Path.Combine(globalPackagesFolder, "system.runtime"))) { // TODO validate if _correct_
+                            continue; // otherwise System.IO.FileLoadException: The assembly 'System.Runtime, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a' has already loaded been loaded into this MetadataLoadContext.
+                        }
                         assemblyPaths.Add(assembly);
                     }
                 }
