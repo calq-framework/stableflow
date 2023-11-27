@@ -26,7 +26,7 @@ namespace CalqFramework.Stableflow {
 
     class Synver {
 
-        class Configuration {
+        public class Configuration {
             public static string version = "";
         }
 

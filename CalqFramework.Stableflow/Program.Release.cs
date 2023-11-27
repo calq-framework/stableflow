@@ -87,6 +87,7 @@ partial class Program {
             }
 
             foreach (var modifiedProjectFile in modifiedProjectFiles) {
+                CalqFramework.Stableflow.Synver.Configuration.version = "0.0.0"; // TODO remove it
                 var synverVersionBump = CalqFramework.Stableflow.Synver.CompareAssemblies(baseDllByModifiedProjectFile[modifiedProjectFile], modifiedDllByModifiedProjectFile[modifiedProjectFile]);
                 versionBump = new Version(synverVersionBump.major, synverVersionBump.minor, synverVersionBump.patch) > versionBump ? new Version(synverVersionBump.major, synverVersionBump.minor, synverVersionBump.patch) : versionBump;
             }
