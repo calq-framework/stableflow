@@ -159,8 +159,8 @@ namespace CalqFramework.Stableflow {
                     (a, b) =>
                         a.ToUniqueString() == b.ToUniqueString() &&
 #pragma warning disable CS8604 // Possible null reference argument.
-                        a.GetGetMethod()?.GetMethodBody()?.GetILAsByteArray()?.SequenceEqual(b.GetGetMethod()?.GetMethodBody()?.GetILAsByteArray()) != false && // true if null
-                        a.GetSetMethod()?.GetMethodBody()?.GetILAsByteArray()?.SequenceEqual(b.GetSetMethod()?.GetMethodBody()?.GetILAsByteArray()) != false
+                        a.GetGetMethod()?.GetMethodBody()?.GetILAsByteArray()?.SequenceEqual(b.GetGetMethod()?.GetMethodBody()?.GetILAsByteArray() ?? Array.Empty<byte>()) != false && // true if null
+                        a.GetSetMethod()?.GetMethodBody()?.GetILAsByteArray()?.SequenceEqual(b.GetSetMethod()?.GetMethodBody()?.GetILAsByteArray() ?? Array.Empty<byte>()) != false
 #pragma warning restore CS8604 // Possible null reference argument.
                     );
         }
