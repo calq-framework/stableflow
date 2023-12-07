@@ -114,11 +114,15 @@ partial class Program {
         return GetAssemblyName(projectFile);
     }
     private void BuildPush(string projectFile, Version version, bool test) {
+        // TODO use XmlDocument
         var projectContent = File.ReadAllText(projectFile);
+        var buildOptions = projectContent.Contains("Include=\"Microsoft.SourceLink.GitHub\"")
+            ? "-p:EmbedUntrackedSources=true -p:DebugType=embedded"
+            : "";
 
         // TODO build specific project and all test project that ref this project
         CMD($"dotnet restore \"{projectFile}\" --locked-mode -p:ContinuousIntegrationBuild=true");
-        CMD($"dotnet build \"{projectFile}\" --no-restore --configuration Release -p:ContinuousIntegrationBuild=true -p:Version={version}");
+        CMD($"dotnet build \"{projectFile}\" --no-restore --configuration Release -p:ContinuousIntegrationBuild=true -p:Version={version} {buildOptions}");
 
         if (test) {
             var testProjectFile = GetTestProject(projectFile);
@@ -129,10 +133,10 @@ partial class Program {
 
         // TODO use XmlDocument
         var packOptions = projectContent.Contains("Include=\"Microsoft.SourceLink.GitHub\"")
-            ? "-p:EmbedUntrackedSources=true -p:DebugType=embedded -p:PublishRepositoryUrl=true"
+            ? "-p:PublishRepositoryUrl=true"
             : $"-p:RepositoryUrl={CMD("git config --get remote.origin.url").Trim()}";
 
-        CMD($"dotnet pack \"{projectFile}\" --no-restore --no-build --output . --configuration Release -p:ContinuousIntegrationBuild=true -p:Version={version} {packOptions}");
+        CMD($"dotnet pack \"{projectFile}\" --no-restore --no-build --output . --configuration Release -p:ContinuousIntegrationBuild=true -p:Version={version} {buildOptions} ${packOptions}");
         var nupkg = $"./{GetPackageId(projectFile)}.{version}.nupkg";
 
         CMD($"dotnet nuget push {nupkg} --source main");
