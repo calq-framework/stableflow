@@ -136,7 +136,7 @@ partial class Program {
             ? "-p:PublishRepositoryUrl=true"
             : $"-p:RepositoryUrl={CMD("git config --get remote.origin.url").Trim()}";
 
-        CMD($"dotnet pack \"{projectFile}\" --no-restore --no-build --output . --configuration Release -p:ContinuousIntegrationBuild=true -p:Version={version} {buildOptions} ${packOptions}");
+        CMD($"dotnet pack \"{projectFile}\" --no-restore --no-build --output . --configuration Release -p:ContinuousIntegrationBuild=true -p:Version={version} {buildOptions} {packOptions}");
         var nupkg = $"./{GetPackageId(projectFile)}.{version}.nupkg";
 
         CMD($"dotnet nuget push {nupkg} --source main");
