@@ -1,9 +1,4 @@
-﻿using NuGet.Configuration;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -224,6 +219,7 @@ namespace CalqFramework.Stableflow {
             return differenceDegree;
         }
 
+        // TODO TextWriter
         private static void PrintDifferences(IEnumerableDiff<FieldInfo> fieldDifferences, IEnumerableDiff<PropertyInfo> propertyDifferences, IEnumerableDiff<MethodInfo> methodDifferences) {
             var output = new StringBuilder();
 
@@ -291,35 +287,18 @@ namespace CalqFramework.Stableflow {
 
         internal static Version CompareAssemblies(string baseAssemblyPath, string modifiedAssemblyPath) {
             var runtimeAssemblies = Directory.GetFiles(RuntimeEnvironment.GetRuntimeDirectory(), "*.dll");
-            var assemblyPaths = new List<string>(runtimeAssemblies);
+            var runtimeAassemblyPaths = new List<string>(runtimeAssemblies);
+            var baseAssemblyPaths = new List<string>(runtimeAassemblyPaths);
+            var modifiedAssemblyPaths = new List<string>(runtimeAassemblyPaths);
 
             var baseAssemblies = Directory.GetFiles(Path.GetDirectoryName(baseAssemblyPath)!, "*.dll", new EnumerationOptions { RecurseSubdirectories = true });
-            assemblyPaths.AddRange(baseAssemblies);
+            baseAssemblyPaths.AddRange(baseAssemblies);
 
-            var modofiedAssemblies = Directory.GetFiles(Path.GetDirectoryName(modifiedAssemblyPath)!, "*.dll", new EnumerationOptions { RecurseSubdirectories = true });
-            assemblyPaths.AddRange(modofiedAssemblies);
+            var modifiedAssemblies = Directory.GetFiles(Path.GetDirectoryName(modifiedAssemblyPath)!, "*.dll", new EnumerationOptions { RecurseSubdirectories = true });
+            modifiedAssemblyPaths.AddRange(modifiedAssemblies);
 
-            // fails to find globalPackagesFolder on GitHub Actions
-            // System.IO.DirectoryNotFoundException: Could not find a part of the path '/home/runner/.nuget/packages'.
-            var globalPackagesFolder = SettingsUtility.GetGlobalPackagesFolder(Settings.LoadDefaultSettings(null));
-            if (Directory.Exists(globalPackagesFolder)) {
-                var globalPackagesLibFolders = Directory.GetDirectories(globalPackagesFolder, "lib", new EnumerationOptions { RecurseSubdirectories = true });
-                foreach (var libFolder in globalPackagesLibFolders) {
-                    var assemblies = Directory.GetFiles(libFolder, "*.dll", new EnumerationOptions { RecurseSubdirectories = true });
-                    foreach (var assembly in assemblies) {
-                        if (assembly.StartsWith(Path.Combine(globalPackagesFolder, "microsoft.netcore.app.runtime"))) { // TODO validate if _correct_
-                            continue; // otherwise mscorlib.dll is loaded twice and fails
-                        }
-                        if (assembly.StartsWith(Path.Combine(globalPackagesFolder, "system.runtime"))) { // TODO validate if _correct_
-                            continue; // otherwise System.IO.FileLoadException: The assembly 'System.Runtime, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a' has already loaded been loaded into this MetadataLoadContext.
-                        }
-                        assemblyPaths.Add(assembly);
-                    }
-                }
-            }
-
-            Assembly baseAssembly = new MetadataLoadContext(new PathAssemblyResolver(assemblyPaths)).LoadFromAssemblyPath(baseAssemblyPath);
-            Assembly modifiedAssembly = new MetadataLoadContext(new PathAssemblyResolver(assemblyPaths)).LoadFromAssemblyPath(modifiedAssemblyPath);
+            Assembly baseAssembly = new MetadataLoadContext(new PathAssemblyResolver(baseAssemblyPaths)).LoadFromAssemblyPath(baseAssemblyPath);
+            Assembly modifiedAssembly = new MetadataLoadContext(new PathAssemblyResolver(modifiedAssemblyPaths)).LoadFromAssemblyPath(modifiedAssemblyPath);
 
             var assemblyVersion = baseAssembly.GetName().Version!;
             var version = Configuration.version != "" ? new Version(Configuration.version) : new Version(assemblyVersion.Major, assemblyVersion.Minor, assemblyVersion.Build);
