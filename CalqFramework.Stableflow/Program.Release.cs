@@ -59,6 +59,8 @@ partial class Program {
         var versionBump = new Version();
         if (hasNewAssembly) {
             versionBump = new Version(0, 1, 0);
+            Clean();
+            CMD($"git switch -");
         } else {
             var baseDllByModifiedProjectFile = new Dictionary<string, string>();
             foreach (var modifiedProjectFile in modifiedProjectFiles) {
