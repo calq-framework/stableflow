@@ -207,18 +207,6 @@ namespace CalqFramework.Stableflow {
             return differenceDegree;
         }
 
-        private static DifferenceDegree GetPrivateMemberInfosDifferenceDegree<T>(params IEnumerableDiff<T>[] differences) where T : MemberInfo {
-            var differenceDegree = DifferenceDegree.None;
-
-            foreach (var difference in differences) {
-                if (difference.Different.Count() != 0 || difference.Missing.Count() != 0 || difference.Extra.Count() != 0) {
-                    differenceDegree |= DifferenceDegree.NonBreaking;
-                }
-            }
-
-            return differenceDegree;
-        }
-
         // TODO TextWriter
         private static void PrintDifferences(IEnumerableDiff<FieldInfo> fieldDifferences, IEnumerableDiff<PropertyInfo> propertyDifferences, IEnumerableDiff<MethodInfo> methodDifferences) {
             var output = new StringBuilder();
@@ -266,13 +254,6 @@ namespace CalqFramework.Stableflow {
             var propertyInfosDiff = GetPropertyInfoDifferences(baseAssembly, modifiedAssembly, bindingAttr);
             var methodInfosDiff = GetMethodInfoDifferences(baseAssembly, modifiedAssembly, bindingAttr);
             var differenceDegree = GetPublicMemberInfosDifferenceDegree(fieldInfosDiff, propertyInfosDiff, methodInfosDiff);
-
-            bindingAttr = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
-            differenceDegree |= GetPrivateMemberInfosDifferenceDegree<MemberInfo>(
-                GetFieldInfoDifferences(baseAssembly, modifiedAssembly, bindingAttr),
-                GetPropertyInfoDifferences(baseAssembly, modifiedAssembly, bindingAttr),
-                GetMethodInfoDifferences(baseAssembly, modifiedAssembly, bindingAttr)
-            );
 
             if (differenceDegree == DifferenceDegree.None) {
                 differenceDegree |= File.ReadAllBytes(baseAssembly.Location).SequenceEqual(File.ReadAllBytes(modifiedAssembly.Location)) ? DifferenceDegree.None : DifferenceDegree.NonBreaking;
