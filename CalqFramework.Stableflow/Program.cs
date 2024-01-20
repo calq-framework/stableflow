@@ -46,8 +46,13 @@ partial class Program {
     private IEnumerable<string> GetProjectFiles() {
         IEnumerable<string> projectFiles = Directory.GetFiles(".", "*.*proj", SearchOption.AllDirectories);
         IEnumerable<string> testProjectFiles = Directory.GetFiles(".", "*Test.*proj", SearchOption.AllDirectories);
+        var examplesDir = Directory.EnumerateDirectories(".", "Examples", SearchOption.AllDirectories)
+            .Union(Directory.EnumerateDirectories(".", "Example", SearchOption.AllDirectories)).OrderBy(x => x.Length).FirstOrDefault();
+        IEnumerable<string> exampleProjectFiles = Directory.GetFiles(".", "*Example.*proj", SearchOption.AllDirectories);
+        exampleProjectFiles = examplesDir != null ? exampleProjectFiles.Union(Directory.GetFiles(examplesDir, "*.*proj", SearchOption.AllDirectories)) : exampleProjectFiles;
 
         projectFiles = projectFiles.Where(file => !IsInSameOrSubdirectory(file, testProjectFiles));
+        projectFiles = projectFiles.Where(file => !IsInSameOrSubdirectory(file, exampleProjectFiles));
         var projectFilesList = projectFiles.ToList();
         // TODO validate this logic
         projectFiles = projectFiles.Where(file => !IsInSameOrSubdirectory(file, projectFilesList.Except(new[] { file }))); // filter out nested projects
