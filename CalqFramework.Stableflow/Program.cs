@@ -1,7 +1,8 @@
-﻿using Ghbvft6.Calq.Tooler;
+﻿using CalqFramework.Shell;
+using Ghbvft6.Calq.Tooler;
 using System.Text.RegularExpressions;
 using System.Xml;
-using static CalqFramework.Terminal.BashUtil;
+using static CalqFramework.Shell.ShellUtil;
 
 namespace Ghbvft6.Calq.Dvo;
 
@@ -195,6 +196,7 @@ partial class Program {
     }
 
     static void Main(string[] args) {
+        ShellUtil.SetShell(new Bash());
         Tool.Execute(new Program(), args);
     }
 }

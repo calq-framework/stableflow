@@ -11,7 +11,7 @@
     <ToolCommandName>stableflow</ToolCommandName>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CalqFramework.Terminal" Version="0.*" />
+    <PackageReference Include="CalqFramework.Shell" Version="0.*" />
     <PackageReference Include="Ghbvft6.Calq.Tooler" Version="0.*" />
     <PackageReference Include="NuGet.Configuration" Version="6.8.0" />
     <PackageReference Include="System.Reflection.MetadataLoadContext" Version="8.0.0" />

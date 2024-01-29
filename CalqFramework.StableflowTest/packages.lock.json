@@ -35,10 +35,10 @@
         "resolved": "2.4.5",
         "contentHash": "OwHamvBdUKgqsXfBzWiCW/O98BTx81UKzx2bieIOQI7CZFE5NEQZGi8PBQGIKawDW96xeRffiNf20SjfC0x9hw=="
       },
-      "CalqFramework.Terminal": {
+      "CalqFramework.Shell": {
         "type": "Transitive",
-        "resolved": "0.3.0",
-        "contentHash": "nZ1NQpXg20+1eUpC2rykcxRlkXZyC2lcrLA47EuaAybDd73Nosc/1u/YI6mw5TcRJ/2YynzjQyW58JIvPfrKYA=="
+        "resolved": "0.5.0",
+        "contentHash": "rrRkmDZvq8Y5LIu77G1EG+N+3c0HDPsux+FTYn+Jj/cw30FJJEmbhWFtbL6OZhIGT5DKRqmWbHn2mGqRruom8w=="
       },
       "Ghbvft6.Calq.Options": {
         "type": "Transitive",
@@ -1154,7 +1154,7 @@
       "calqframework.stableflow": {
         "type": "Project",
         "dependencies": {
-          "CalqFramework.Terminal": "[0.*, )",
+          "CalqFramework.Shell": "[0.*, )",
           "Ghbvft6.Calq.Tooler": "[0.*, )",
           "NuGet.Configuration": "[6.8.0, )",
           "System.Reflection.MetadataLoadContext": "[8.0.0, )"

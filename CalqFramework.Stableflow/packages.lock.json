@@ -2,11 +2,11 @@
   "version": 1,
   "dependencies": {
     "net7.0": {
-      "CalqFramework.Terminal": {
+      "CalqFramework.Shell": {
         "type": "Direct",
         "requested": "[0.*, )",
-        "resolved": "0.3.0",
-        "contentHash": "nZ1NQpXg20+1eUpC2rykcxRlkXZyC2lcrLA47EuaAybDd73Nosc/1u/YI6mw5TcRJ/2YynzjQyW58JIvPfrKYA=="
+        "resolved": "0.5.0",
+        "contentHash": "rrRkmDZvq8Y5LIu77G1EG+N+3c0HDPsux+FTYn+Jj/cw30FJJEmbhWFtbL6OZhIGT5DKRqmWbHn2mGqRruom8w=="
       },
       "Ghbvft6.Calq.Tooler": {
         "type": "Direct",
