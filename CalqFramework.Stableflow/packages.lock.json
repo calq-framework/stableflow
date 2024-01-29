@@ -2,20 +2,20 @@
   "version": 1,
   "dependencies": {
     "net7.0": {
+      "CalqFramework.Cli": {
+        "type": "Direct",
+        "requested": "[0.*, )",
+        "resolved": "0.23.0",
+        "contentHash": "g7a6HPFwqGWd21m80X4qIFgidkYU34RQe4xZHUarGIEs2Ova1nqvHqoJJsie5GL+5WP/XJFIF2xYJeSMlrHDjA==",
+        "dependencies": {
+          "CalqFramework.Serialization": "0.14.0"
+        }
+      },
       "CalqFramework.Shell": {
         "type": "Direct",
         "requested": "[0.*, )",
         "resolved": "0.5.0",
         "contentHash": "rrRkmDZvq8Y5LIu77G1EG+N+3c0HDPsux+FTYn+Jj/cw30FJJEmbhWFtbL6OZhIGT5DKRqmWbHn2mGqRruom8w=="
-      },
-      "Ghbvft6.Calq.Tooler": {
-        "type": "Direct",
-        "requested": "[0.*, )",
-        "resolved": "0.1.7",
-        "contentHash": "7cq2yhl4eAEMcbiEMBpz3cO8tzxX5h+HcOACMgj/iFdVcEe4AMA1vYFp53HqNiTW/I4mpcXJ6o9qCeKGmaJ6Mw==",
-        "dependencies": {
-          "Ghbvft6.Calq.Options": "0.1.0"
-        }
       },
       "NuGet.Configuration": {
         "type": "Direct",
@@ -37,10 +37,18 @@
           "System.Reflection.Metadata": "8.0.0"
         }
       },
-      "Ghbvft6.Calq.Options": {
+      "CalqFramework.Serialization": {
         "type": "Transitive",
-        "resolved": "0.1.0",
-        "contentHash": "OeVKO71pZY7z0BCzbfvMAc1Y0Bubyu2uDh149SZkng/9ZxyMKfoNUdSbPTewkyCGlUtVJrONISt3EF40SlMgMQ=="
+        "resolved": "0.14.0",
+        "contentHash": "UJpwuFD3TUd6/VGvv4qMVAl9nulEMZHVmCnQYniEOcPQ4VXqaIMape8wD/rvlTv/pVRYcJhbMMCz4hJ49CYmhg==",
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.3"
+        }
+      },
+      "Newtonsoft.Json": {
+        "type": "Transitive",
+        "resolved": "13.0.3",
+        "contentHash": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ=="
       },
       "NuGet.Common": {
         "type": "Transitive",

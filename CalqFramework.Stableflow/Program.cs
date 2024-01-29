@@ -1,5 +1,6 @@
-﻿using CalqFramework.Shell;
-using Ghbvft6.Calq.Tooler;
+﻿using CalqFramework.Cli;
+using CalqFramework.Shell;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml;
 using static CalqFramework.Shell.ShellUtil;
@@ -197,6 +198,9 @@ partial class Program {
 
     static void Main(string[] args) {
         ShellUtil.SetShell(new Bash());
-        Tool.Execute(new Program(), args);
+        var result = CommandLineInterface.Execute(new Program());
+        if (result != null) {
+            Console.WriteLine(JsonSerializer.Serialize(result));
+        }
     }
 }
