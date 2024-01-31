@@ -33,7 +33,7 @@ partial class Program {
         CMD($"git fetch --depth 1 origin {commitHash}");
 
         if (projectFiles.Any() == false) {
-            var latestTagNamex = CMD($"git describe --tags --match v[0-9]*.[0-9]*.[0-9]* {commitHash}"); // latestTagDescription.Split('/')?[^1]!; // TODO re-validate with regex
+            var latestTagNamex = CMD($"git ls-remote --tags --sort -version:refname origin v[0-9]*.[0-9]*.[0-9]* | grep {commitHash}").Trim().Split('/')?[^1]!; // TODO re-validate with regex
             var latestVersionx = GetVersionFromTagName(latestTagNamex);
             result = latestVersionx;
             return false;
@@ -102,7 +102,7 @@ partial class Program {
             }
         }
 
-        var latestTagName = CMD($"git describe --tags --match v[0-9]*.[0-9]*.[0-9]* {commitHash}"); // latestTagDescription.Split('/')?[^1]!; // TODO re-validate with regex
+        var latestTagName = CMD($"git ls-remote --tags --sort -version:refname origin v[0-9]*.[0-9]*.[0-9]* | grep {commitHash}").Trim().Split('/')?[^1]!; // TODO re-validate with regex
         var latestVersion = GetVersionFromTagName(latestTagName);
         // TODO get bumped version directly from synver output
         if (versionBump.Major != 0 || versionBump.Minor != 0) {
