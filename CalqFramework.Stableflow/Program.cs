@@ -32,6 +32,8 @@ partial class Program {
     }
 
     private ICollection<string> GetChangedProjectFiles(string commitHash) {
+        CMD($"git fetch --depth 1 origin {commitHash}");
+
         var projectFiles = GetProjectFiles();
         var changedFiles = CMD($"git diff {commitHash} --name-only").Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(x => $".{Path.DirectorySeparatorChar}{x}");
 
