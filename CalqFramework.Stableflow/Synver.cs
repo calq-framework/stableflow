@@ -121,7 +121,7 @@ namespace CalqFramework.Stableflow {
             var missing = new Dictionary<string, T>();
             var different = new List<IValuePair<T>>();
 
-            foreach (T element in baseEnumerable) {
+            foreach (T element in baseEnumerable.DistinctBy(nameGetter)) {
                 if (map.ContainsKey(nameGetter(element))) {
                     if (!comparator(map[nameGetter(element)], element)) {
                         different.Add(new ValuePair<T>(element, map[nameGetter(element)]));
