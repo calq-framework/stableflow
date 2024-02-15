@@ -4,9 +4,8 @@ partial class Program {
     public void release() {
         var latestTagHash = GetLatestTagHash();
         if (string.IsNullOrEmpty(latestTagHash)) {
-            TagAsLatest();
+            BuildPushTag(GetProjectFiles(), GetHighestHardcodedVersion(), true);
             return;
-            // return GetHighestHardcodedVersion();
         }
         var modifiedProjectFiles = GetChangedProjectFiles(latestTagHash);
         if (TryGetBumpedVersion(modifiedProjectFiles, latestTagHash, out var version)) {
