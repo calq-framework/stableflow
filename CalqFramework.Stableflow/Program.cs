@@ -7,7 +7,7 @@ using static CalqFramework.Shell.ShellUtil;
 
 namespace Ghbvft6.Calq.Dvo;
 
-partial class Program {
+public partial class Program {
     private void Clean() {
         CMD("git reset --hard");
         CMD("git clean -d -x --force");
