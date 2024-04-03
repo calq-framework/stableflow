@@ -28,6 +28,7 @@ jobs:
         for key in $(echo "${SECRETS_JSON}" | jq -r 'keys[]'); do
           value=$(echo "${SECRETS_JSON}" | jq -r --arg key "${key}" '.[$key]')
           echo "${key}=${value}" >> $GITHUB_ENV
+          echo "${key}"
         done
     - name: get called workflow ref
       id: workflows-ref
