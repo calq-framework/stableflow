@@ -22,6 +22,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - name: import secrets as env vars
+      run: |
+        SECRETS_JSON=$(echo '${{ toJson(secrets) }}'')
+        for key in $(echo "${SECRETS_JSON}" | jq -r 'keys[]'); do
+          value=$(echo "${SECRETS_JSON}" | jq -r --arg key "${key}" '.[$key]')
+          echo "${key}=${value}" >> $GITHUB_ENV
+        done
     - name: get called workflow ref
       id: workflows-ref
       run: |

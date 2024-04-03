@@ -19,5 +19,4 @@ jobs:
     secrets:
       MAIN_NUGET_PAT: ${{ secrets.MAIN_NUGET_PAT }}
       CALQ_FRAMEWORK_NUGET_PAT: ${{ secrets.CALQ_FRAMEWORK_NUGET_PAT }}
-    env:
-      super_secret: ${{ secrets.NUGET_DELETE_PAT }}
+      NUGET_DELETE_PAT: ${{ secrets.NUGET_DELETE_PAT }}
