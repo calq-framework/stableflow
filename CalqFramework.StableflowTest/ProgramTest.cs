@@ -83,14 +83,14 @@ public class ProgramTest {
     }
 
     [Fact]
-    public void Test1() {
-        var projectName = "CalqFramework.StableflowTestReleaseClasslib";
+    public void Release_ClasslibInit_PublishesInitPackage() {
+        var projectName = "CalqFramework.StableflowTestClasslibInit";
         var tmpDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         try {
             Directory.CreateDirectory(tmpDir);
             Environment.CurrentDirectory = tmpDir;
-            CMD("git clone --depth 1 https://github.com/calq-framework/stableflow-test-release-classlib.git"); // { token_of_StableflowReleaseTest if present} // todo pull to temp file within constructor and each unit test should use their own tmp folder
-            Environment.CurrentDirectory = Path.Combine(Environment.CurrentDirectory, "stableflow-test-release-classlib");
+            CMD("git clone --depth 1 https://github.com/calq-framework/stableflow-test-classlib-init.git"); // { token_of_StableflowReleaseTest if present} // todo pull to temp file within constructor and each unit test should use their own tmp folder
+            Environment.CurrentDirectory = Path.Combine(Environment.CurrentDirectory, "stableflow-test-classlib-init");
             var commitHashBefore = CMD("git rev-parse HEAD").Trim();
             var md5Before = GetDirMd5(".", projectName);
             new Program().release();
