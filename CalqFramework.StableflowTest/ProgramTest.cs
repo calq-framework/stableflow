@@ -18,13 +18,38 @@ public class ProgramTest {
                 return md5.ComputeHash(stream);
             }
         }
+    
     }
 
-    static List<byte> GetDirMd5(string dir, string projectName) {
+    static bool Md5sEqual(Dictionary<string, byte[]> a, Dictionary<string, byte[]> b) {
+        if (a.Count != b.Count) {
+            return false;
+        }
+
+        foreach (var key in a.Keys)
+        {
+            if (!b.ContainsKey(key)) {
+                return false;
+            }
+
+            if (!a[key].SequenceEqual(b[key])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    static Dictionary<string, byte[]> GetDirMd5s(string dir, string projectName) {
         var files = Directory.EnumerateFiles(dir, "*", SearchOption.AllDirectories);
-        var allBytes = new List<byte>();
+        var allBytes = new Dictionary<string, byte[]>();
         foreach ( var file in files) {
             var ignoreFilesAndDirs = new[] {
+                "./.git/index",
+                "./.git/shallow",
+                "./.git/objects",
+                "./.git/logs",
+
                 "./.git/FETCH_HEAD",
                 "./.git/ORIG_HEAD",
                 "./.git/refs/tags/latest",
@@ -43,11 +68,10 @@ public class ProgramTest {
                 continue;
             }
             var md5hash = GetFileMd5(file);
-            allBytes.AddRange(md5hash);
+            allBytes[file] = md5hash;
         }
         return allBytes;
     }
-
     string GetPackageVersionId(string versionName, string projectName) {
         var versionList = CMD(@$"
             curl -L \
@@ -92,15 +116,38 @@ public class ProgramTest {
             CMD("git clone --depth 1 https://github.com/calq-framework/stableflow-test-classlib-init.git"); // { token_of_StableflowReleaseTest if present} // todo pull to temp file within constructor and each unit test should use their own tmp folder
             Environment.CurrentDirectory = Path.Combine(Environment.CurrentDirectory, "stableflow-test-classlib-init");
             var commitHashBefore = CMD("git rev-parse HEAD").Trim();
-            var md5Before = GetDirMd5(".", projectName);
+            var md5Before = GetDirMd5s(".", projectName);
             new Program().release();
             var commitHashAfter = CMD("git rev-parse HEAD").Trim();
-            var md5After = GetDirMd5(".", projectName);
+            var md5After = GetDirMd5s(".", projectName);
             Assert.Equal(commitHashBefore, commitHashAfter);
-            Assert.True(md5Before.SequenceEqual(md5After));
+            Assert.True(Md5sEqual(md5Before, md5After));
             GetPackageVersionId("0.0.0", projectName); // assert package exists
         } finally {
             RemovePackage("0.0.0", projectName);
+            Directory.Delete(tmpDir, true);
+        }
+    }
+
+    [Fact]
+    public void Release_MethodAddition_PublishesPatchPackage() {
+        var projectName = "CalqFramework.StableflowTestMethodAddition";
+        var tmpDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        try {
+            Directory.CreateDirectory(tmpDir);
+            Environment.CurrentDirectory = tmpDir;
+            CMD("git clone --depth 1 https://github.com/calq-framework/stableflow-test-method-addition.git");
+            Environment.CurrentDirectory = Path.Combine(Environment.CurrentDirectory, "stableflow-test-method-addition");
+            var commitHashBefore = CMD("git rev-parse HEAD").Trim();
+            var md5Before = GetDirMd5s(".", projectName);
+            new Program().release();
+            var commitHashAfter = CMD("git rev-parse HEAD").Trim();
+            var md5After = GetDirMd5s(".", projectName);
+            Assert.Equal(commitHashBefore, commitHashAfter);
+            Assert.True(Md5sEqual(md5Before, md5After));
+            GetPackageVersionId("0.0.1", projectName); // assert package exists
+        } finally {
+            RemovePackage("0.0.1", projectName);
             Directory.Delete(tmpDir, true);
         }
     }
