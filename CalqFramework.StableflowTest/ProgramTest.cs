@@ -20,7 +20,7 @@ public class ProgramTest {
         }
     }
 
-    static List<byte> GetDirMd5(string dir) {
+    static List<byte> GetDirMd5(string dir, string projectName) {
         var files = Directory.EnumerateFiles(dir, "*", SearchOption.AllDirectories);
         var allBytes = new List<byte>();
         foreach ( var file in files) {
@@ -29,11 +29,15 @@ public class ProgramTest {
                 "./.git/ORIG_HEAD",
                 "./.git/refs/tags/latest",
                 "./.git/refs/tags/v0.0.0",
-                "./ClqFramework.StableflowTestReleaseClasslib/bin",
-                "./ClqFramework.StableflowTestReleaseClasslib/obj",
-                "./ClqFramework.StableflowTestReleaseClasslibTest/bin",
-                "./ClqFramework.StableflowTestReleaseClasslibTest/obj",
-                "./ClqFramework.StableflowTestReleaseClasslib.0.0.0.nupkg"
+                "./.git/refs/tags/v0.0.1",
+                "./.git/refs/tags/v0.1.0",
+                $"./{projectName}/bin",
+                $"./{projectName}/obj",
+                $"./{projectName}Test/bin",
+                $"./{projectName}Test/obj",
+                $"./{projectName}.0.0.0.nupkg",
+                $"./{projectName}.0.0.1.nupkg",
+                $"./{projectName}.0.1.0.nupkg"
             };
             if (ignoreFilesAndDirs.Any(prefix => file.StartsWith(prefix))) {
                 continue;
@@ -44,13 +48,13 @@ public class ProgramTest {
         return allBytes;
     }
 
-    string GetPackageVersionId(string versionName) {
+    string GetPackageVersionId(string versionName, string projectName) {
         var versionList = CMD(@$"
             curl -L \
                 -H 'Accept: application/vnd.github+json' \
                 -H 'Authorization: Bearer {Environment.GetEnvironmentVariable("NUGET_DELETE_PAT")}' \
                 -H 'X-GitHub-Api-Version: 2022-11-28' \
-                https://api.github.com/orgs/calq-framework/packages/nuget/ClqFramework.StableflowTestReleaseClasslib/versions
+                https://api.github.com/orgs/calq-framework/packages/nuget/{projectName}/versions
         ");
         var versions = JsonSerializer.Deserialize<List<Dictionary<string, object>>>(versionList) ?? new List<Dictionary<string, object>>();
         foreach (var version in versions) {
@@ -65,21 +69,22 @@ public class ProgramTest {
         CMD($"git push --delete origin v{versionName}");
     }
 
-    void RemovePackage(string versionName) {
-        var versionId = GetPackageVersionId(versionName);
+    void RemovePackage(string versionName, string projectName) {
+        var versionId = GetPackageVersionId(versionName, projectName);
         CMD(@$"
             curl -L \
                 -X DELETE \
                 -H 'Accept: application/vnd.github+json' \
                 -H 'Authorization: Bearer {Environment.GetEnvironmentVariable("NUGET_DELETE_PAT")}' \
                 -H 'X-GitHub-Api-Version: 2022-11-28' \
-                https://api.github.com/orgs/calq-framework/packages/nuget/ClqFramework.StableflowTestReleaseClasslib/versions/{versionId}
+                https://api.github.com/orgs/calq-framework/packages/nuget/{projectName}/versions/{versionId}
         ");
         RemoveTag(versionName);
     }
 
     [Fact]
     public void Test1() {
+        var projectName = "CalqFramework.StableflowTestReleaseClasslib";
         var tmpDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         try {
             Directory.CreateDirectory(tmpDir);
@@ -87,15 +92,15 @@ public class ProgramTest {
             CMD("git clone --depth 1 https://github.com/calq-framework/stableflow-test-release-classlib.git"); // { token_of_StableflowReleaseTest if present} // todo pull to temp file within constructor and each unit test should use their own tmp folder
             Environment.CurrentDirectory = Path.Combine(Environment.CurrentDirectory, "stableflow-test-release-classlib");
             var commitHashBefore = CMD("git rev-parse HEAD").Trim();
-            var md5Before = GetDirMd5(".");
+            var md5Before = GetDirMd5(".", projectName);
             new Program().release();
             var commitHashAfter = CMD("git rev-parse HEAD").Trim();
-            var md5After = GetDirMd5(".");
+            var md5After = GetDirMd5(".", projectName);
             Assert.Equal(commitHashBefore, commitHashAfter);
             Assert.True(md5Before.SequenceEqual(md5After));
-            GetPackageVersionId("0.0.0"); // assert package exists
+            GetPackageVersionId("0.0.0", projectName); // assert package exists
         } finally {
-            RemovePackage("0.0.0");
+            RemovePackage("0.0.0", projectName);
             Directory.Delete(tmpDir, true);
         }
     }
