@@ -151,4 +151,27 @@ public class ProgramTest {
             Directory.Delete(tmpDir, true);
         }
     }
+
+    [Fact]
+    public void Release_MethodRemoval_PublishesMinorPackage() {
+        var projectName = "CalqFramework.StableflowTestMethodRemoval";
+        var tmpDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        try {
+            Directory.CreateDirectory(tmpDir);
+            Environment.CurrentDirectory = tmpDir;
+            CMD("git clone --depth 1 https://github.com/calq-framework/stableflow-test-method-removal.git");
+            Environment.CurrentDirectory = Path.Combine(Environment.CurrentDirectory, "stableflow-test-method-removal");
+            var commitHashBefore = CMD("git rev-parse HEAD").Trim();
+            var md5Before = GetDirMd5s(".", projectName);
+            new Program().release();
+            var commitHashAfter = CMD("git rev-parse HEAD").Trim();
+            var md5After = GetDirMd5s(".", projectName);
+            Assert.Equal(commitHashBefore, commitHashAfter);
+            Assert.True(Md5sEqual(md5Before, md5After));
+            GetPackageVersionId("0.1.0", projectName); // assert package exists
+        } finally {
+            RemovePackage("0.1.0", projectName);
+            Directory.Delete(tmpDir, true);
+        }
+    }
 }
