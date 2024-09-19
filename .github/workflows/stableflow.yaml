@@ -52,12 +52,6 @@ jobs:
           fi
         fi
         rm -rf "$temp_dir"
-    - uses: actions/cache@v3
-      with:
-        path: ~/.dotnet/tools
-        key: ${{ runner.os }}-dotnet-tools-${{ github.workflow_sha }}
-        restore-keys: |
-          ${{ runner.os }}-dotnet-tools-
     - name: install stableflow
       shell: bash
       run: |
