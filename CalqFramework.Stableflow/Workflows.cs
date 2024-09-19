@@ -8,6 +8,9 @@ using static CalqFramework.Shell.ShellUtil;
 namespace CalqFramework.Stableflow;
 
 public partial class Workflows {
+
+    List<string> Repositories { get; set; } = new List<string> () { "main" };
+
     private void Clean() {
         CMD("git reset --hard");
         CMD("git clean -d -x --force");
@@ -148,7 +151,9 @@ public partial class Workflows {
         CMD($"dotnet pack \"{projectFile}\" --no-restore --no-build --output . --configuration Release -p:ContinuousIntegrationBuild=true -p:Version={version} {buildOptions} {packOptions}");
         var nupkg = $"./{GetPackageId(projectFile)}.{version}.nupkg";
 
-        CMD($"dotnet nuget push {nupkg} --source main");
+        foreach (var repository in Repositories) {
+            CMD($"dotnet nuget push {nupkg} --source {repository}");
+        }
     }
 
     private void BuildPushTag(IEnumerable<string> projectFiles, Version version, bool test) {

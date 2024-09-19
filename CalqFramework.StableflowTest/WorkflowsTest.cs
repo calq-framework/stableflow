@@ -117,7 +117,7 @@ public class WorkflowsTest {
             Environment.CurrentDirectory = Path.Combine(Environment.CurrentDirectory, "stableflow-test-classlib-init");
             var commitHashBefore = CMD("git rev-parse HEAD").Trim();
             var md5Before = GetDirMd5s(".", projectName);
-            new Workflows().release();
+            new Workflows().Release();
             var commitHashAfter = CMD("git rev-parse HEAD").Trim();
             var md5After = GetDirMd5s(".", projectName);
             Assert.Equal(commitHashBefore, commitHashAfter);
@@ -140,7 +140,7 @@ public class WorkflowsTest {
             Environment.CurrentDirectory = Path.Combine(Environment.CurrentDirectory, "stableflow-test-method-addition");
             var commitHashBefore = CMD("git rev-parse HEAD").Trim();
             var md5Before = GetDirMd5s(".", projectName);
-            new Workflows().release();
+            new Workflows().Release();
             var commitHashAfter = CMD("git rev-parse HEAD").Trim();
             var md5After = GetDirMd5s(".", projectName);
             Assert.Equal(commitHashBefore, commitHashAfter);
@@ -163,7 +163,7 @@ public class WorkflowsTest {
             Environment.CurrentDirectory = Path.Combine(Environment.CurrentDirectory, "stableflow-test-method-removal");
             var commitHashBefore = CMD("git rev-parse HEAD").Trim();
             var md5Before = GetDirMd5s(".", projectName);
-            new Workflows().release();
+            new Workflows().Release();
             var commitHashAfter = CMD("git rev-parse HEAD").Trim();
             var md5After = GetDirMd5s(".", projectName);
             Assert.Equal(commitHashBefore, commitHashAfter);

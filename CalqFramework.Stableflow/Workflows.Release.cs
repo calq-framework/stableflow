@@ -1,7 +1,7 @@
 ﻿namespace CalqFramework.Stableflow;
 
 partial class Workflows {
-    public void release() {
+    public void Release() {
         var latestTagHash = GetLatestTagHash();
         if (string.IsNullOrEmpty(latestTagHash)) {
             BuildPushTag(GetProjectFiles(), GetHighestHardcodedVersion(), true);
