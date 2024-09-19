@@ -1,9 +1,9 @@
 ﻿using System.Text.RegularExpressions;
 using static CalqFramework.Shell.ShellUtil;
 
-namespace Ghbvft6.Calq.Dvo;
+namespace CalqFramework.Stableflow;
 
-partial class Program {
+partial class Workflows {
 
     private Version GetHighestHardcodedVersion() {
         var projectFiles = GetProjectFiles();

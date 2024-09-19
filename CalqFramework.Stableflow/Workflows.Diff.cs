@@ -1,6 +1,6 @@
-﻿namespace Ghbvft6.Calq.Dvo;
+﻿namespace CalqFramework.Stableflow;
 
-partial class Program {
+partial class Workflows {
     public Version Diff() {
         var latestTagHash = GetLatestTagHash();
         if (string.IsNullOrEmpty(latestTagHash)) {

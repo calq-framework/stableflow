@@ -1,14 +1,14 @@
 namespace CalqFramework.StableflowTest;
 
 using CalqFramework.Shell;
-using Ghbvft6.Calq.Dvo;
+using CalqFramework.Stableflow;
 using System.Security.Cryptography;
 using System.Text.Json;
 using static CalqFramework.Shell.ShellUtil;
 
-public class ProgramTest {
+public class WorkflowsTest {
 
-    public ProgramTest() {
+    public WorkflowsTest() {
         ShellUtil.SetShell(new Bash());
     }
 
@@ -117,7 +117,7 @@ public class ProgramTest {
             Environment.CurrentDirectory = Path.Combine(Environment.CurrentDirectory, "stableflow-test-classlib-init");
             var commitHashBefore = CMD("git rev-parse HEAD").Trim();
             var md5Before = GetDirMd5s(".", projectName);
-            new Program().release();
+            new Workflows().release();
             var commitHashAfter = CMD("git rev-parse HEAD").Trim();
             var md5After = GetDirMd5s(".", projectName);
             Assert.Equal(commitHashBefore, commitHashAfter);
@@ -140,7 +140,7 @@ public class ProgramTest {
             Environment.CurrentDirectory = Path.Combine(Environment.CurrentDirectory, "stableflow-test-method-addition");
             var commitHashBefore = CMD("git rev-parse HEAD").Trim();
             var md5Before = GetDirMd5s(".", projectName);
-            new Program().release();
+            new Workflows().release();
             var commitHashAfter = CMD("git rev-parse HEAD").Trim();
             var md5After = GetDirMd5s(".", projectName);
             Assert.Equal(commitHashBefore, commitHashAfter);
@@ -163,7 +163,7 @@ public class ProgramTest {
             Environment.CurrentDirectory = Path.Combine(Environment.CurrentDirectory, "stableflow-test-method-removal");
             var commitHashBefore = CMD("git rev-parse HEAD").Trim();
             var md5Before = GetDirMd5s(".", projectName);
-            new Program().release();
+            new Workflows().release();
             var commitHashAfter = CMD("git rev-parse HEAD").Trim();
             var md5After = GetDirMd5s(".", projectName);
             Assert.Equal(commitHashBefore, commitHashAfter);
