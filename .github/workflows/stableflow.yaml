@@ -50,7 +50,8 @@ jobs:
         temp_dir=$(mktemp -d)
         if git clone --depth 1 https://github.com/${{ github.repository_owner }}/.nuget "$temp_dir"; then
           echo "pulled"
-          cp -r $temp_dir/.nuget/* ~/.nuget
+          mkdir ~/.nuget
+          cp -r $temp_dir/.nuget ~/
           if [ -f ~/.nuget/NuGet/NuGet.Config ]; then
             temp_file=$(mktemp)
             envsubst < ~/.nuget/NuGet/NuGet.Config > "$temp_file" && mv "$temp_file" ~/.nuget/NuGet/NuGet.Config
