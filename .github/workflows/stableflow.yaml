@@ -43,8 +43,13 @@ jobs:
         echo "CALLED_WORKFLOW_REF: \"$called_workflow_ref\""
     - name: setup nuget config
       run: |
+        echo "~/.config/NuGet/NuGet.Config"
+        cat ~/.config/NuGet/NuGet.Config || true
+        echo "~/.nuget/NuGet/NuGet.Config"
+        cat ~/.nuget/NuGet/NuGet.Config || true
         temp_dir=$(mktemp -d)
         if gh repo clone ${{ github.repository_owner }}/.nuget "$temp_dir" -- --depth 1; then
+          echo "pulled"
           mv -f "$temp_dir/.nuget" ~/.nuget/
           if [ -f "~/.nuget/NuGet/NuGet.Config" ]; then
             temp_file=$(mktemp)
@@ -52,6 +57,10 @@ jobs:
           fi
         fi
         rm -rf "$temp_dir"
+        echo "~/.config/NuGet/NuGet.Config"
+        cat ~/.config/NuGet/NuGet.Config || true
+        echo "~/.nuget/NuGet/NuGet.Config"
+        cat ~/.nuget/NuGet/NuGet.Config || true
     - name: install stableflow
       shell: bash
       run: |
