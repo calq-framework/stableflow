@@ -48,7 +48,7 @@ jobs:
         echo "~/.nuget/NuGet/NuGet.Config"
         cat ~/.nuget/NuGet/NuGet.Config || true
         temp_dir=$(mktemp -d)
-        if gh repo clone ${{ github.repository_owner }}/.nuget "$temp_dir" -- --depth 1; then
+        if git clone --depth 1 https://github.com/${{ github.repository_owner }}/.nuget "$temp_dir"; then
           echo "pulled"
           mv -f "$temp_dir/.nuget" ~/.nuget/
           if [ -f "~/.nuget/NuGet/NuGet.Config" ]; then
