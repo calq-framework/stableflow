@@ -1,14 +1,14 @@
 {
   "version": 1,
   "dependencies": {
-    "net7.0": {
+    "net8.0": {
       "CalqFramework.Cli": {
         "type": "Direct",
         "requested": "[0.*, )",
-        "resolved": "0.23.0",
-        "contentHash": "g7a6HPFwqGWd21m80X4qIFgidkYU34RQe4xZHUarGIEs2Ova1nqvHqoJJsie5GL+5WP/XJFIF2xYJeSMlrHDjA==",
+        "resolved": "0.28.0",
+        "contentHash": "S+iFsihiOT/wRlMsRmf0kGS1IjOVNPD0/s/cl5mUe2baVEC7wClSghTaLK2cq4ZPkRiPBCfXZLjsKp5VMia9MQ==",
         "dependencies": {
-          "CalqFramework.Serialization": "0.14.0"
+          "CalqFramework.DataAccess": "0.28.0"
         }
       },
       "CalqFramework.Shell": {
@@ -37,18 +37,10 @@
           "System.Reflection.Metadata": "8.0.0"
         }
       },
-      "CalqFramework.Serialization": {
+      "CalqFramework.DataAccess": {
         "type": "Transitive",
-        "resolved": "0.14.0",
-        "contentHash": "UJpwuFD3TUd6/VGvv4qMVAl9nulEMZHVmCnQYniEOcPQ4VXqaIMape8wD/rvlTv/pVRYcJhbMMCz4hJ49CYmhg==",
-        "dependencies": {
-          "Newtonsoft.Json": "13.0.3"
-        }
-      },
-      "Newtonsoft.Json": {
-        "type": "Transitive",
-        "resolved": "13.0.3",
-        "contentHash": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ=="
+        "resolved": "0.28.0",
+        "contentHash": "Kv469uX+kzCImF43A9ZvZH16aMEx6Dw4fRNlF3cXzJFU/2sMLKT1CmbC8oUqXxjEjcuya3f5xWeNWu1i+PFaog=="
       },
       "NuGet.Common": {
         "type": "Transitive",

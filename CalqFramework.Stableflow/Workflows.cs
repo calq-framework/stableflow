@@ -205,7 +205,7 @@ public partial class Workflows {
 
     static void Main(string[] args) {
         ShellUtil.SetShell(new Bash());
-        var result = CommandLineInterface.Execute(new Workflows());
+        var result = new CommandLineInterface().Execute(new Workflows());
         if (result != null) {
             Console.WriteLine(JsonSerializer.Serialize(result));
         }
