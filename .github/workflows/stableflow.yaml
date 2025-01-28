@@ -6,11 +6,6 @@ on:
       command:
         required: true
         type: string
-    secrets:
-      MAIN_NUGET_PAT:
-        required: true
-      CALQ_FRAMEWORK_NUGET_PAT:
-        required: true
 
 concurrency: stableflow
 
