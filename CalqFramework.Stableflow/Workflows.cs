@@ -202,12 +202,4 @@ public partial class Workflows {
         CMD("git -c user.name='Stableflow[action]' -c user.email='' commit -m 'update packages.lock.json'");
         CMD($"git push origin {CMD("git branch --show-current").Trim()}");
     }
-
-    static void Main(string[] args) {
-        ShellUtil.SetShell(new Bash());
-        var result = new CommandLineInterface().Execute(new Workflows());
-        if (result != null) {
-            Console.WriteLine(JsonSerializer.Serialize(result));
-        }
-    }
 }
