@@ -50,8 +50,8 @@
       },
       "CalqFramework.Shell": {
         "type": "Transitive",
-        "resolved": "0.5.2",
-        "contentHash": "hXvU5Jy/Fxn17zh2GkAfckTEwt+udBKSelr9dssu/NcOAb1pfd9JZhGEoiO8GTqKoJOrSgi0zsb9pRxbmIYmLQ=="
+        "resolved": "0.5.3",
+        "contentHash": "KOQU5nIwZI+ygeozrhLAc/zOdmOlTwO1/Uf7kwi9b5YWFjCh5MGLOrDcwn+PYWCuyBsr/b/G8ZtFJjsPy5UzWA=="
       },
       "Microsoft.CodeCoverage": {
         "type": "Transitive",
