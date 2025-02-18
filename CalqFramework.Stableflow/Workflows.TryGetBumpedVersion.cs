@@ -44,7 +44,7 @@ partial class Workflows {
 
         CMD($"git checkout {commitHash}");
 
-        var baseProjectFiles = GetProjectFiles();
+        var baseProjectFiles = GetProjectFiles().Where(x => projectFiles.Contains(x));
         var baseProjectFilesByAssemblies = baseProjectFiles.ToDictionary(x => GetAssemblyName(x), x => x);
 
         // TODO confirm modified version resolving logic
@@ -53,6 +53,7 @@ partial class Workflows {
         if (highestModifiedVersion != highestBaseVersion) {
             CMD($"git switch -");
             result = GetHighestHardcodedVersion(); // ensure the modified version isn't lower than any other hardcoded version
+            // FIXME ensure modified version isn't lower than any tag
             return true;
         }
 
