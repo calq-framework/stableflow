@@ -19,23 +19,19 @@
       },
       "NuGet.Configuration": {
         "type": "Direct",
-        "requested": "[6.8.0, )",
-        "resolved": "6.8.0",
-        "contentHash": "FFEoY1L9G+C74HfSYt6epHTIuS5xJ8D+d9LZ5nnqhujMoBlQgHphaCTfRlul+e/bNIkAp1fDObzsGlPmu3CKAg==",
+        "requested": "[6.13.1, )",
+        "resolved": "6.13.1",
+        "contentHash": "jw6wvfdoA8IvZhhBx+yEe997nzfpF4uE6Zq4sQTwJ0jaukEKSYlM/AoUUsZIdYCw9MkYlpdo69qWRMf3WnSCQQ==",
         "dependencies": {
-          "NuGet.Common": "6.8.0",
+          "NuGet.Common": "6.13.1",
           "System.Security.Cryptography.ProtectedData": "4.4.0"
         }
       },
       "System.Reflection.MetadataLoadContext": {
         "type": "Direct",
-        "requested": "[8.0.0, )",
-        "resolved": "8.0.0",
-        "contentHash": "SZxrQ4sQYnIcdwiO3G/lHZopbPYQ2lW0ioT4JezgccWUrKaKbHLJbAGZaDfkYjWcta1pWssAo3MOXLsR0ie4tQ==",
-        "dependencies": {
-          "System.Collections.Immutable": "8.0.0",
-          "System.Reflection.Metadata": "8.0.0"
-        }
+        "requested": "[9.0.2, )",
+        "resolved": "9.0.2",
+        "contentHash": "7Pz4KaF7lLVu3I09DP3PlVEgyTp401hWq5BkX8qRU9zlS8FZEFEsjOlLsd1+Adx8vQyeXq8oBSIuHCSxHqpY3A=="
       },
       "CalqFramework.DataAccess": {
         "type": "Transitive",
@@ -44,29 +40,22 @@
       },
       "NuGet.Common": {
         "type": "Transitive",
-        "resolved": "6.8.0",
-        "contentHash": "voNZyM5L5s0CCDPU//vXKQke0M8y6kGvG+0Ll6gc/xV7Jh1C3/5OhHRzvekxBS6a9DO/lsFhTZtyCkL6n9lHEw==",
+        "resolved": "6.13.1",
+        "contentHash": "W3AdCslzmjRqTKAzcAf+EDhxkFjEwVdj5bkBkWlsqqgn9svLSno/JhTWxTEDggW/ju5fFoEpSDr9NyEnSw8sZw==",
         "dependencies": {
-          "NuGet.Frameworks": "6.8.0"
+          "NuGet.Frameworks": "6.13.1",
+          "System.Collections.Immutable": "8.0.0"
         }
       },
       "NuGet.Frameworks": {
         "type": "Transitive",
-        "resolved": "6.8.0",
-        "contentHash": "cN9NyahKgYYScioH4CKn+TYj1eSODxd0RECFnQt6ZmzT6z7PfXlbYpVzbiPsxNgY23iNDMOVkSmOqNZyYxNlQA=="
+        "resolved": "6.13.1",
+        "contentHash": "KvfijSQRsKFhuAuoZxs/zp3QlD92ZLhXTMzLfYAgu6Ir6gLtfpRgC16u3/rvfzbTvbVYgI90A0EAb3e99hnyEg=="
       },
       "System.Collections.Immutable": {
         "type": "Transitive",
         "resolved": "8.0.0",
         "contentHash": "AurL6Y5BA1WotzlEvVaIDpqzpIPvYnnldxru8oXJU2yFxFUy3+pNXjXd1ymO+RA0rq0+590Q8gaz2l3Sr7fmqg=="
-      },
-      "System.Reflection.Metadata": {
-        "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "ptvgrFh7PvWI8bcVqG5rsA/weWM09EnthFHR5SCnS6IN+P4mj6rE1lBDC4U8HL9/57htKAqy4KQ3bBj84cfYyQ==",
-        "dependencies": {
-          "System.Collections.Immutable": "8.0.0"
-        }
       },
       "System.Security.Cryptography.ProtectedData": {
         "type": "Transitive",
