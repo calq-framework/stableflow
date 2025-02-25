@@ -8,7 +8,7 @@ public class Program {
     static void Main(string[] args) {
         ShellUtil.SetShell(new Bash());
         var result = new CommandLineInterface().Execute(new Workflows());
-        if (result != null) {
+        if (result is not ResultVoid) {
             Console.WriteLine(JsonSerializer.Serialize(result));
         }
     }
