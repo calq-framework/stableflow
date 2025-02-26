@@ -125,7 +125,7 @@ public partial class Workflows {
 
         return GetAssemblyName(projectFile);
     }
-    private void BuildPush(string projectFile, Version version, bool test) {
+    private void BuildPush(string projectFile, Version version, bool test, bool skipDuplicate = false) {
         // TODO use XmlDocument
         var projectContent = File.ReadAllText(projectFile);
         var buildOptions = projectContent.Contains("Include=\"Microsoft.SourceLink.GitHub\"")
@@ -151,8 +151,14 @@ public partial class Workflows {
         CMD($"dotnet pack \"{projectFile}\" --no-restore --no-build --output . --configuration Release -p:ContinuousIntegrationBuild=true -p:Version={version} {buildOptions} {packOptions}");
         var nupkg = $"./{GetPackageId(projectFile)}.{version}.nupkg";
 
+        var skipDuplicateString = skipDuplicate ? "--skip-duplicate" : "";
         foreach (var repository in Repositories) {
-            CMD($"dotnet nuget push {nupkg} --source {repository}");
+            if (repository == "nuget.org") {
+                // dotnet nuget command doesn't support nuget config configuration for nuget.org https://github.com/NuGet/Home/issues/6437
+                CMD($"dotnet nuget push {nupkg} --source {repository} --api-key {Environment.GetEnvironmentVariable("NUGET_API_KEY")} {skipDuplicateString} ");
+            } else {
+                CMD($"dotnet nuget push {nupkg} --source {repository} {skipDuplicateString}");
+            }
         }
     }
 
