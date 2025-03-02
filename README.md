@@ -1,3 +1,3 @@
 Experimental.
 
-version control orchestration system prototype
+release orchestration system prototype
