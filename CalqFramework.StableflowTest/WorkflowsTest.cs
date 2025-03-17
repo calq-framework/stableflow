@@ -1,15 +1,15 @@
 namespace CalqFramework.StableflowTest;
 
-using CalqFramework.Shell;
+using CalqFramework.Cmd.Shells;
 using CalqFramework.Stableflow;
 using System.Security.Cryptography;
 using System.Text.Json;
-using static CalqFramework.Shell.ShellUtil;
+using static CalqFramework.Cmd.Terminal;
 
 public class WorkflowsTest {
 
     public WorkflowsTest() {
-        ShellUtil.SetShell(new Bash());
+        LocalTerminal.Shell = new Bash();
     }
 
     static byte[] GetFileMd5(string filePath) {
@@ -18,7 +18,7 @@ public class WorkflowsTest {
                 return md5.ComputeHash(stream);
             }
         }
-    
+
     }
 
     static bool Md5sEqual(Dictionary<string, byte[]> a, Dictionary<string, byte[]> b) {
@@ -26,8 +26,7 @@ public class WorkflowsTest {
             return false;
         }
 
-        foreach (var key in a.Keys)
-        {
+        foreach (var key in a.Keys) {
             if (!b.ContainsKey(key)) {
                 return false;
             }
@@ -42,8 +41,8 @@ public class WorkflowsTest {
 
     static Dictionary<string, byte[]> GetDirMd5s(string dir, string projectName) {
         var files = Directory.EnumerateFiles(dir, "*", SearchOption.AllDirectories);
-        var allBytes = new Dictionary<string, byte[]>();
-        foreach ( var file in files) {
+        var coreFiles = new List<string>();
+        foreach (var file in files) {
             var ignoreFilesAndDirs = new[] {
                 "./.git/index",
                 "./.git/shallow",
@@ -64,9 +63,14 @@ public class WorkflowsTest {
                 $"./{projectName}.0.0.1.nupkg",
                 $"./{projectName}.0.1.0.nupkg"
             };
+            ignoreFilesAndDirs = ignoreFilesAndDirs.Concat(ignoreFilesAndDirs.Select(x => x.Replace('/', '\\'))).ToArray();
             if (ignoreFilesAndDirs.Any(prefix => file.StartsWith(prefix))) {
                 continue;
             }
+            coreFiles.Add(file);
+        }
+        var allBytes = new Dictionary<string, byte[]>();
+        foreach (var file in coreFiles) {
             var md5hash = GetFileMd5(file);
             allBytes[file] = md5hash;
         }
@@ -90,12 +94,12 @@ public class WorkflowsTest {
     }
 
     void RemoveTag(string versionName) {
-        CMD($"git push --delete origin v{versionName}");
+        RUN($"git push --delete origin v{versionName}");
     }
 
     void RemovePackage(string versionName, string projectName) {
         var versionId = GetPackageVersionId(versionName, projectName);
-        CMD(@$"
+        RUN(@$"
             curl -L \
                 -X DELETE \
                 -H 'Accept: application/vnd.github+json' \
@@ -112,20 +116,23 @@ public class WorkflowsTest {
         var tmpDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         try {
             Directory.CreateDirectory(tmpDir);
-            Environment.CurrentDirectory = tmpDir;
-            CMD("git clone --depth 1 https://github.com/calq-framework/stableflow-test-classlib-init.git"); // { token_of_StableflowReleaseTest if present} // todo pull to temp file within constructor and each unit test should use their own tmp folder
-            Environment.CurrentDirectory = Path.Combine(Environment.CurrentDirectory, "stableflow-test-classlib-init");
-            var commitHashBefore = CMD("git rev-parse HEAD").Trim();
+            CD(tmpDir);
+            RUN("git clone --depth 1 https://github.com/calq-framework/stableflow-test-classlib-init.git"); // { token_of_StableflowReleaseTest if present} // todo pull to temp file within constructor and each unit test should use their own tmp folder
+            Environment.CurrentDirectory = Path.Combine(tmpDir, "stableflow-test-classlib-init");
+            CD("stableflow-test-classlib-init");
+            string commitHashBefore = CMD("git rev-parse HEAD");
             var md5Before = GetDirMd5s(".", projectName);
             new Workflows().Release();
-            var commitHashAfter = CMD("git rev-parse HEAD").Trim();
+            string commitHashAfter = CMD("git rev-parse HEAD");
             var md5After = GetDirMd5s(".", projectName);
             Assert.Equal(commitHashBefore, commitHashAfter);
             Assert.True(Md5sEqual(md5Before, md5After));
             GetPackageVersionId("0.0.0", projectName); // assert package exists
         } finally {
-            RemovePackage("0.0.0", projectName);
-            Directory.Delete(tmpDir, true);
+            try {
+                RemovePackage("0.0.0", projectName);
+                Directory.Delete(tmpDir, true);
+            } catch { }
         }
     }
 
@@ -135,20 +142,24 @@ public class WorkflowsTest {
         var tmpDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         try {
             Directory.CreateDirectory(tmpDir);
+            CD(tmpDir);
             Environment.CurrentDirectory = tmpDir;
-            CMD("git clone --depth 1 https://github.com/calq-framework/stableflow-test-method-addition.git");
-            Environment.CurrentDirectory = Path.Combine(Environment.CurrentDirectory, "stableflow-test-method-addition");
-            var commitHashBefore = CMD("git rev-parse HEAD").Trim();
+            RUN("git clone --depth 1 https://github.com/calq-framework/stableflow-test-method-addition.git");
+            Environment.CurrentDirectory = Path.Combine(tmpDir, "stableflow-test-method-addition");
+            CD("stableflow-test-method-addition");
+            string commitHashBefore = CMD("git rev-parse HEAD");
             var md5Before = GetDirMd5s(".", projectName);
             new Workflows().Release();
-            var commitHashAfter = CMD("git rev-parse HEAD").Trim();
+            string commitHashAfter = CMD("git rev-parse HEAD");
             var md5After = GetDirMd5s(".", projectName);
             Assert.Equal(commitHashBefore, commitHashAfter);
             Assert.True(Md5sEqual(md5Before, md5After));
             GetPackageVersionId("0.0.1", projectName); // assert package exists
         } finally {
-            RemovePackage("0.0.1", projectName);
-            Directory.Delete(tmpDir, true);
+            try {
+                RemovePackage("0.0.1", projectName);
+                Directory.Delete(tmpDir, true);
+            } catch { }
         }
     }
 
@@ -158,20 +169,23 @@ public class WorkflowsTest {
         var tmpDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         try {
             Directory.CreateDirectory(tmpDir);
-            Environment.CurrentDirectory = tmpDir;
-            CMD("git clone --depth 1 https://github.com/calq-framework/stableflow-test-method-removal.git");
-            Environment.CurrentDirectory = Path.Combine(Environment.CurrentDirectory, "stableflow-test-method-removal");
-            var commitHashBefore = CMD("git rev-parse HEAD").Trim();
+            CD(tmpDir);
+            RUN("git clone --depth 1 https://github.com/calq-framework/stableflow-test-method-removal.git");
+            Environment.CurrentDirectory = Path.Combine(tmpDir, "stableflow-test-method-removal");
+            CD("stableflow-test-method-removal");
+            string commitHashBefore = CMD("git rev-parse HEAD");
             var md5Before = GetDirMd5s(".", projectName);
             new Workflows().Release();
-            var commitHashAfter = CMD("git rev-parse HEAD").Trim();
+            string commitHashAfter = CMD("git rev-parse HEAD");
             var md5After = GetDirMd5s(".", projectName);
             Assert.Equal(commitHashBefore, commitHashAfter);
             Assert.True(Md5sEqual(md5Before, md5After));
             GetPackageVersionId("0.1.0", projectName); // assert package exists
         } finally {
-            RemovePackage("0.1.0", projectName);
-            Directory.Delete(tmpDir, true);
+            try {
+                RemovePackage("0.1.0", projectName);
+                Directory.Delete(tmpDir, true);
+            } catch { }
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using static CalqFramework.Shell.ShellUtil;
+using static CalqFramework.Cmd.Terminal;
 
 namespace CalqFramework.Stableflow;
 
@@ -12,7 +12,7 @@ partial class Workflows {
     }
 
     private string? GetLatestTagHash() {
-        var tags = CMD("git ls-remote --tags --sort -version:refname origin v[0-9]*.[0-9]*.[0-9]*").Split('\n', StringSplitOptions.RemoveEmptyEntries); // outputs "e466424416af589cdb7b8a23258ade4f23a0c3ed refs/tags/v0.0.0"
+        var tags = CMD("git ls-remote --tags --sort -version:refname origin v[0-9]*.[0-9]*.[0-9]*").Value.Split('\n', StringSplitOptions.RemoveEmptyEntries); // outputs "e466424416af589cdb7b8a23258ade4f23a0c3ed refs/tags/v0.0.0"
 
         var latestTagDescription = tags.FirstOrDefault(); // TODO if minor branch then get latest on that minor branch instead (also don't allow for minor bumps) - var branchName = CMD("git branch --show-current").Trim();
 
@@ -30,10 +30,10 @@ partial class Workflows {
         var TMPDIR = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         Directory.CreateDirectory(TMPDIR);
 
-        CMD($"git fetch --depth 1 origin {commitHash}");
+        RUN($"git fetch --depth 1 origin {commitHash}");
 
         if (projectFiles.Any() == false) {
-            var latestTagNamex = CMD($"git ls-remote --tags --sort -version:refname origin v[0-9]*.[0-9]*.[0-9]* | grep {commitHash}").Trim().Split('/')?[^1]!; // TODO re-validate with regex
+            var latestTagNamex = CMD($"git ls-remote --tags --sort -version:refname origin v[0-9]*.[0-9]*.[0-9]* | grep {commitHash}").Value.Split('/')?[^1]!; // TODO re-validate with regex
             var latestVersionx = GetVersionFromTagName(latestTagNamex);
             result = latestVersionx;
             return false;
@@ -42,7 +42,7 @@ partial class Workflows {
         var highestModifiedVersion = projectFiles.Select(x => GetVersion(x)).OrderByDescending(x => x).First();
         var assembliesByModifiedProjectFiles = projectFiles.ToDictionary(x => x, x => GetAssemblyName(x));
 
-        CMD($"git checkout {commitHash}");
+        RUN($"git checkout {commitHash}");
 
         var baseProjectFiles = GetProjectFiles().Where(x => projectFiles.Contains(x));
         var baseProjectFilesByAssemblies = baseProjectFiles.ToDictionary(x => GetAssemblyName(x), x => x);
@@ -51,7 +51,7 @@ partial class Workflows {
         var highestBaseVersion = baseProjectFiles.Select(x => GetVersion(x)).OrderByDescending(x => x).First()!;
 
         if (highestModifiedVersion != highestBaseVersion) {
-            CMD($"git switch -");
+            RUN($"git switch -");
             result = GetHighestHardcodedVersion(); // ensure the modified version isn't lower than any other hardcoded version
             // FIXME ensure modified version isn't lower than any tag
             return true;
@@ -68,7 +68,7 @@ partial class Workflows {
         var versionBump = new Version();
         if (hasNewAssembly) {
             versionBump = new Version(0, 1, 0);
-            CMD($"git switch -");
+            RUN($"git switch -");
         } else {
             var baseDllByModifiedProjectFile = new Dictionary<string, string>();
             foreach (var modifiedProjectFile in projectFiles) {
@@ -76,23 +76,23 @@ partial class Workflows {
                 var assemblyName = assembliesByModifiedProjectFiles[modifiedProjectFile];
                 var projectFile = baseProjectFilesByAssemblies[assemblyName];
                 var outputDir = $"{TMPDIR}/publish_base/{assemblyName}";
-                CMD($"dotnet restore \"{projectFile}\" --locked-mode -p:ContinuousIntegrationBuild=true");
-                CMD($"dotnet build \"{projectFile}\" --no-restore --configuration Release -p:ContinuousIntegrationBuild=true");
-                CMD($"dotnet publish \"{projectFile}\" --output \"{outputDir}\" --no-restore --no-build --configuration Release -p:ContinuousIntegrationBuild=true");
+                RUN($"dotnet restore \"{projectFile}\" --locked-mode -p:ContinuousIntegrationBuild=true");
+                RUN($"dotnet build \"{projectFile}\" --no-restore --configuration Release -p:ContinuousIntegrationBuild=true");
+                RUN($"dotnet publish \"{projectFile}\" --output \"{LocalTerminal.Shell.GetInternalPath(outputDir)}\" --no-restore --no-build --configuration Release -p:ContinuousIntegrationBuild=true");
                 baseDllByModifiedProjectFile[modifiedProjectFile] = $"{outputDir}/{assemblyName}.dll";
             }
 
             Clean();
-            CMD($"git switch -");
+            RUN($"git switch -");
 
             var modifiedDllByModifiedProjectFile = new Dictionary<string, string>();
             foreach (var modifiedProjectFile in projectFiles) {
                 var assemblyName = assembliesByModifiedProjectFiles[modifiedProjectFile];
                 var projectFile = modifiedProjectFile;
                 var outputDir = $"{TMPDIR}/publish_release/{assemblyName}";
-                CMD($"dotnet restore \"{projectFile}\" --locked-mode -p:ContinuousIntegrationBuild=true");
-                CMD($"dotnet build \"{projectFile}\" --no-restore --configuration Release -p:ContinuousIntegrationBuild=true");
-                CMD($"dotnet publish \"{projectFile}\" --output \"{outputDir}\" --no-restore --no-build --configuration Release -p:ContinuousIntegrationBuild=true");
+                RUN($"dotnet restore \"{projectFile}\" --locked-mode -p:ContinuousIntegrationBuild=true");
+                RUN($"dotnet build \"{projectFile}\" --no-restore --configuration Release -p:ContinuousIntegrationBuild=true");
+                RUN($"dotnet publish \"{projectFile}\" --output \"{LocalTerminal.Shell.GetInternalPath(outputDir)}\" --no-restore --no-build --configuration Release -p:ContinuousIntegrationBuild=true");
                 modifiedDllByModifiedProjectFile[modifiedProjectFile] = $"{outputDir}/{assemblyName}.dll";
             }
 
@@ -103,7 +103,7 @@ partial class Workflows {
             }
         }
 
-        var latestTagName = CMD($"git ls-remote --tags --sort -version:refname origin v[0-9]*.[0-9]*.[0-9]* | grep {commitHash}").Trim().Split('/')?[^1]!; // TODO re-validate with regex
+        var latestTagName = CMD($"git ls-remote --tags --sort -version:refname origin v[0-9]*.[0-9]*.[0-9]* | grep {commitHash}").Value.Split('/')?[^1]!; // TODO re-validate with regex
         var latestVersion = GetVersionFromTagName(latestTagName);
         // TODO get bumped version directly from synver output
         if (versionBump.Major != 0 || versionBump.Minor != 0) {

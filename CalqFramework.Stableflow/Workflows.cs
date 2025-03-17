@@ -1,19 +1,16 @@
-﻿using CalqFramework.Cli;
-using CalqFramework.Shell;
-using System.Text.Json;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Xml;
-using static CalqFramework.Shell.ShellUtil;
+using static CalqFramework.Cmd.Terminal;
 
 namespace CalqFramework.Stableflow;
 
 public partial class Workflows {
 
-    public List<string> Repositories { get; set; } = new List<string> () { "main" };
+    public List<string> Repositories { get; set; } = new List<string>() { "main" };
 
     private void Clean() {
-        CMD("git reset --hard");
-        CMD("git clean -d -x --force");
+        RUN("git reset --hard");
+        RUN("git clean -d -x --force");
     }
 
     private bool IsInSameOrSubdirectory(string filePath, IEnumerable<string> files) {
@@ -35,10 +32,10 @@ public partial class Workflows {
     }
 
     private ICollection<string> GetChangedProjectFiles(string commitHash) {
-        CMD($"git fetch --depth 1 origin {commitHash}");
+        RUN($"git fetch --depth 1 origin {commitHash}");
 
         var projectFiles = GetProjectFiles();
-        var changedFiles = CMD($"git diff {commitHash} --name-only").Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(x => $".{Path.DirectorySeparatorChar}{x}");
+        var changedFiles = CMD($"git diff {commitHash} --name-only").Value.Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(x => $".{Path.DirectorySeparatorChar}{x}");
 
         var changedProjects = new List<string>();
         foreach (var projectFile in projectFiles) {
@@ -133,31 +130,31 @@ public partial class Workflows {
             : "";
 
         // TODO build specific project and all test project that ref this project
-        CMD($"dotnet restore \"{projectFile}\" --locked-mode -p:ContinuousIntegrationBuild=true");
-        CMD($"dotnet build \"{projectFile}\" --no-restore --configuration Release -p:ContinuousIntegrationBuild=true -p:Version={version} {buildOptions}");
+        RUN($"dotnet restore \"{projectFile}\" --locked-mode -p:ContinuousIntegrationBuild=true");
+        RUN($"dotnet build \"{projectFile}\" --no-restore --configuration Release -p:ContinuousIntegrationBuild=true -p:Version={version} {buildOptions}");
 
         if (test) {
             var testProjectFile = GetTestProject(projectFile);
             if (testProjectFile != null) {
-                CMD($"dotnet test \"{testProjectFile}\" --no-restore --no-build --configuration Release -p:ContinuousIntegrationBuild=true");
+                RUN($"dotnet test \"{testProjectFile}\" --no-restore --no-build --configuration Release -p:ContinuousIntegrationBuild=true");
             }
         }
 
         // TODO use XmlDocument
         var packOptions = projectContent.Contains("Include=\"Microsoft.SourceLink.GitHub\"")
             ? "-p:PublishRepositoryUrl=true"
-            : $"-p:RepositoryUrl={CMD("git config --get remote.origin.url").Trim()}";
+            : $"-p:RepositoryUrl={CMD("git config --get remote.origin.url").Value}";
 
-        CMD($"dotnet pack \"{projectFile}\" --no-restore --no-build --output . --configuration Release -p:ContinuousIntegrationBuild=true -p:Version={version} {buildOptions} {packOptions}");
+        RUN($"dotnet pack \"{projectFile}\" --no-restore --no-build --output . --configuration Release -p:ContinuousIntegrationBuild=true -p:Version={version} {buildOptions} {packOptions}");
         var nupkg = $"./{GetPackageId(projectFile)}.{version}.nupkg";
 
         var skipDuplicateString = skipDuplicate ? "--skip-duplicate" : "";
         foreach (var repository in Repositories) {
             if (repository == "nuget.org") {
                 // dotnet nuget command doesn't support nuget config configuration for nuget.org https://github.com/NuGet/Home/issues/6437
-                CMD($"dotnet nuget push {nupkg} --source {repository} --api-key {Environment.GetEnvironmentVariable("NUGET_API_KEY")} {skipDuplicateString} ");
+                RUN($"dotnet nuget push {nupkg} --source {repository} --api-key {Environment.GetEnvironmentVariable("NUGET_API_KEY")} {skipDuplicateString} ");
             } else {
-                CMD($"dotnet nuget push {nupkg} --source {repository} {skipDuplicateString}");
+                RUN($"dotnet nuget push {nupkg} --source {repository} {skipDuplicateString}");
             }
         }
     }
@@ -172,13 +169,13 @@ public partial class Workflows {
     }
 
     private void Tag(Version version) {
-        CMD($"git tag v{version}");
-        CMD($"git push origin v{version}");
+        RUN($"git tag v{version}");
+        RUN($"git push origin v{version}");
     }
 
     private void TagAsLatest() {
-        CMD($"git tag latest --force");
-        CMD($"git push origin latest --force");
+        RUN($"git tag latest --force");
+        RUN($"git push origin latest --force");
     }
 
     private void UpdateVersion(string projectFile, Version version) {
@@ -191,7 +188,7 @@ public partial class Workflows {
         xmlDoc.Load(projectFile);
         (xmlDoc.SelectSingleNode("/Project/PropertyGroup/Version") ?? xmlDoc.SelectSingleNode("/Project/PropertyGroup")!.AppendChild(xmlDoc.CreateElement("Version"))!).InnerText = version.ToString();
         xmlDoc.Save(projectFile);
-        CMD($"git add {projectFile}");
+        RUN($"git add {projectFile}");
     }
 
     private void BumpVersion(string branchName, int patchVersionBump) {
@@ -204,8 +201,8 @@ public partial class Workflows {
     }
 
     private void CommitLockFile() {
-        CMD("git add '**/packages.lock.json'");
-        CMD("git -c user.name='Stableflow[action]' -c user.email='' commit -m 'update packages.lock.json'");
-        CMD($"git push origin {CMD("git branch --show-current").Trim()}");
+        RUN("git add '**/packages.lock.json'");
+        RUN("git -c user.name='Stableflow[action]' -c user.email='' commit -m 'update packages.lock.json'");
+        RUN($"git push origin {CMD("git branch --show-current")}");
     }
 }

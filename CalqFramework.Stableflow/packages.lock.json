@@ -5,17 +5,17 @@
       "CalqFramework.Cli": {
         "type": "Direct",
         "requested": "[0.*, )",
-        "resolved": "0.46.3",
-        "contentHash": "mSW+0Fa3sT/mV9HYNcf0sEpFz5p8dByueXxxsRDbLPivbjSl3V427nW+CXgLQmkB7kMPF7g7g4s+GTdGPNHzrQ==",
+        "resolved": "0.46.4",
+        "contentHash": "1+hgmVa6ylic7gywu+r6leF7L9StTuZb8rUI2R9xW7kWjH57lSvV9b4A2iqXszQRM3j6WAWgExbfv1yyqVtWPA==",
         "dependencies": {
-          "CalqFramework.DataAccess": "0.46.3"
+          "CalqFramework.DataAccess": "0.46.4"
         }
       },
-      "CalqFramework.Shell": {
+      "CalqFramework.Cmd": {
         "type": "Direct",
         "requested": "[0.*, )",
-        "resolved": "0.5.3",
-        "contentHash": "KOQU5nIwZI+ygeozrhLAc/zOdmOlTwO1/Uf7kwi9b5YWFjCh5MGLOrDcwn+PYWCuyBsr/b/G8ZtFJjsPy5UzWA=="
+        "resolved": "0.13.0",
+        "contentHash": "Bf2M73x3R6HSOpLsrnpzqNp63eaAHO9QWQjhMwGOzKXfCFcDyvBbzttjEcdEApXSAeMZYaiFt3UcPU3+l26yAA=="
       },
       "NuGet.Configuration": {
         "type": "Direct",
@@ -35,8 +35,8 @@
       },
       "CalqFramework.DataAccess": {
         "type": "Transitive",
-        "resolved": "0.46.3",
-        "contentHash": "ohoGVB6nOMruLr0Pb1p03iHBwWi4wSkBv7zsfbeyio3pAJaI3to1eoH9R/NXNZRnQmBzgQ25McM51df+oFI1Ig=="
+        "resolved": "0.46.4",
+        "contentHash": "kWlmWLtUnOIlEnXIIAI4qt/fItVyjlau8/7eR5FI2nvPAOBtuzAeqgKmtYc9fyRxo/rSLbhJ0x1U31Xj+/LONg=="
       },
       "NuGet.Common": {
         "type": "Transitive",
