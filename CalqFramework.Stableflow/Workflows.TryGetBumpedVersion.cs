@@ -12,7 +12,7 @@ partial class Workflows {
     }
 
     private string? GetLatestTagHash() {
-        var tags = CMD("git ls-remote --tags --sort -version:refname origin v[0-9]*.[0-9]*.[0-9]*").Value.Split('\n', StringSplitOptions.RemoveEmptyEntries); // outputs "e466424416af589cdb7b8a23258ade4f23a0c3ed refs/tags/v0.0.0"
+        var tags = CMD("git ls-remote --tags --sort -version:refname origin v[0-9]*.[0-9]*.[0-9]*").Split('\n', StringSplitOptions.RemoveEmptyEntries); // outputs "e466424416af589cdb7b8a23258ade4f23a0c3ed refs/tags/v0.0.0"
 
         var latestTagDescription = tags.FirstOrDefault(); // TODO if minor branch then get latest on that minor branch instead (also don't allow for minor bumps) - var branchName = CMD("git branch --show-current").Trim();
 
@@ -33,7 +33,7 @@ partial class Workflows {
         RUN($"git fetch --depth 1 origin {commitHash}");
 
         if (projectFiles.Any() == false) {
-            var latestTagNamex = CMD($"git ls-remote --tags --sort -version:refname origin v[0-9]*.[0-9]*.[0-9]* | grep {commitHash}").Value.Split('/')?[^1]!; // TODO re-validate with regex
+            var latestTagNamex = CMD($"git ls-remote --tags --sort -version:refname origin v[0-9]*.[0-9]*.[0-9]* | grep {commitHash}").Split('/')?[^1]!; // TODO re-validate with regex
             var latestVersionx = GetVersionFromTagName(latestTagNamex);
             result = latestVersionx;
             return false;
@@ -103,7 +103,7 @@ partial class Workflows {
             }
         }
 
-        var latestTagName = CMD($"git ls-remote --tags --sort -version:refname origin v[0-9]*.[0-9]*.[0-9]* | grep {commitHash}").Value.Split('/')?[^1]!; // TODO re-validate with regex
+        var latestTagName = CMD($"git ls-remote --tags --sort -version:refname origin v[0-9]*.[0-9]*.[0-9]* | grep {commitHash}").Split('/')?[^1]!; // TODO re-validate with regex
         var latestVersion = GetVersionFromTagName(latestTagName);
         // TODO get bumped version directly from synver output
         if (versionBump.Major != 0 || versionBump.Minor != 0) {

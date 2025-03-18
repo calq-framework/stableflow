@@ -35,7 +35,7 @@ public partial class Workflows {
         RUN($"git fetch --depth 1 origin {commitHash}");
 
         var projectFiles = GetProjectFiles();
-        var changedFiles = CMD($"git diff {commitHash} --name-only").Value.Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(x => $".{Path.DirectorySeparatorChar}{x}");
+        var changedFiles = CMD($"git diff {commitHash} --name-only").Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(x => $".{Path.DirectorySeparatorChar}{x}");
 
         var changedProjects = new List<string>();
         foreach (var projectFile in projectFiles) {
@@ -143,7 +143,7 @@ public partial class Workflows {
         // TODO use XmlDocument
         var packOptions = projectContent.Contains("Include=\"Microsoft.SourceLink.GitHub\"")
             ? "-p:PublishRepositoryUrl=true"
-            : $"-p:RepositoryUrl={CMD("git config --get remote.origin.url").Value}";
+            : $"-p:RepositoryUrl={CMD("git config --get remote.origin.url")}";
 
         RUN($"dotnet pack \"{projectFile}\" --no-restore --no-build --output . --configuration Release -p:ContinuousIntegrationBuild=true -p:Version={version} {buildOptions} {packOptions}");
         var nupkg = $"./{GetPackageId(projectFile)}.{version}.nupkg";

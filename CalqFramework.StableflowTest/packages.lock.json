@@ -45,8 +45,8 @@
       },
       "CalqFramework.Cmd": {
         "type": "Transitive",
-        "resolved": "0.13.0",
-        "contentHash": "Bf2M73x3R6HSOpLsrnpzqNp63eaAHO9QWQjhMwGOzKXfCFcDyvBbzttjEcdEApXSAeMZYaiFt3UcPU3+l26yAA=="
+        "resolved": "0.14.2",
+        "contentHash": "2psAIaoIOCxHBjXvmGMRsHegcbgcyykf12fAA9IwCqybj+QLJy0tAtqBQ8Jtr9YcSaGDOX8iqHdawWBRL7BoeQ=="
       },
       "CalqFramework.DataAccess": {
         "type": "Transitive",
