@@ -48,7 +48,7 @@ partial class Workflows {
         var baseProjectFilesByAssemblies = baseProjectFiles.ToDictionary(x => GetAssemblyName(x), x => x);
 
         // TODO confirm modified version resolving logic
-        var highestBaseVersion = baseProjectFiles.Select(x => GetVersion(x)).OrderByDescending(x => x).First()!;
+        var highestBaseVersion = baseProjectFiles.Select(x => GetVersion(x)).OrderByDescending(x => x).FirstOrDefault(new Version(0, 0, 0));
 
         if (highestModifiedVersion != highestBaseVersion) {
             RUN($"git switch -");
