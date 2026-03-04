@@ -9,10 +9,17 @@
     <Version>0.2.0</Version>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>stableflow</ToolCommandName>
+    <PackageProjectUrl>https://github.com/calq-framework</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Copyright>2024 Calq Framework</Copyright>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CalqFramework.Cli" Version="0.*" />
-    <PackageReference Include="CalqFramework.Cmd" Version="0.*" />
+    <None Include="..\LICENSE.txt" Pack="true" PackagePath=""/>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CalqFramework.Cli" Version="0.*" />     
+    <PackageReference Include="CalqFramework.Cmd" Version="0.*" />     
     <PackageReference Include="NuGet.Configuration" Version="6.13.1" />
     <PackageReference Include="System.Reflection.MetadataLoadContext" Version="9.0.2" />
   </ItemGroup>
