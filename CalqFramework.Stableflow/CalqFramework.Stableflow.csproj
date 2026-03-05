@@ -18,8 +18,8 @@
     <None Include="..\LICENSE.txt" Pack="true" PackagePath=""/>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CalqFramework.Cli" Version="0.*" />     
-    <PackageReference Include="CalqFramework.Cmd" Version="0.*" />     
+    <PackageReference Include="CalqFramework.Cli" Version="0.62.0" />     
+    <PackageReference Include="CalqFramework.Cmd" Version="0.34.2" />     
     <PackageReference Include="NuGet.Configuration" Version="6.13.1" />
     <PackageReference Include="System.Reflection.MetadataLoadContext" Version="9.0.2" />
   </ItemGroup>

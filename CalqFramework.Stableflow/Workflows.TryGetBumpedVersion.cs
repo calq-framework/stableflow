@@ -78,7 +78,7 @@ partial class Workflows {
                 var outputDir = $"{TMPDIR}/publish_base/{assemblyName}";
                 RUN($"dotnet restore \"{projectFile}\" --locked-mode -p:ContinuousIntegrationBuild=true");
                 RUN($"dotnet build \"{projectFile}\" --no-restore --configuration Release -p:ContinuousIntegrationBuild=true");
-                RUN($"dotnet publish \"{projectFile}\" --output \"{LocalTerminal.Shell.GetInternalPath(outputDir)}\" --no-restore --no-build --configuration Release -p:ContinuousIntegrationBuild=true");
+                RUN($"dotnet publish \"{projectFile}\" --output \"{LocalTerminal.Shell.MapToInternalPath(outputDir)}\" --no-restore --no-build --configuration Release -p:ContinuousIntegrationBuild=true");
                 baseDllByModifiedProjectFile[modifiedProjectFile] = $"{outputDir}/{assemblyName}.dll";
             }
 
@@ -92,7 +92,7 @@ partial class Workflows {
                 var outputDir = $"{TMPDIR}/publish_release/{assemblyName}";
                 RUN($"dotnet restore \"{projectFile}\" --locked-mode -p:ContinuousIntegrationBuild=true");
                 RUN($"dotnet build \"{projectFile}\" --no-restore --configuration Release -p:ContinuousIntegrationBuild=true");
-                RUN($"dotnet publish \"{projectFile}\" --output \"{LocalTerminal.Shell.GetInternalPath(outputDir)}\" --no-restore --no-build --configuration Release -p:ContinuousIntegrationBuild=true");
+                RUN($"dotnet publish \"{projectFile}\" --output \"{LocalTerminal.Shell.MapToInternalPath(outputDir)}\" --no-restore --no-build --configuration Release -p:ContinuousIntegrationBuild=true");
                 modifiedDllByModifiedProjectFile[modifiedProjectFile] = $"{outputDir}/{assemblyName}.dll";
             }
 
